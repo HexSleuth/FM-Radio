@@ -1446,11 +1446,21 @@
         //  STATE
         // ============================================================
         let audio = new Audio();
+
+        // ★★★ FIX: Enable CORS so Web Audio API (equalizer) can process
+        //         the stream without being silenced by the browser. ★★★
+        audio.crossOrigin = "anonymous";
+
         let hls = null;
         let isPlaying = false;
         let currentStationIndex = -1;
         let allStations = [];
         let filteredStations = [];
+
+        // Tracks whether the current stream is being played with the CORS
+        // fallback (crossOrigin cleared). When true, the equalizer will be
+        // unavailable for this stream.
+        let corsFallbackActive = false;
 
         audio.volume = parseFloat(volumeSlider.value);
 
@@ -1503,6 +1513,9 @@
             if (!url) { stopPlayback(); return; }
 
             destroyHls();
+            // Reset CORS fallback for a new stream attempt
+            corsFallbackActive = false;
+
             if (index !== undefined) currentStationIndex = index;
             else currentStationIndex = filteredStations.findIndex(st => st.url === url);
 
@@ -1694,10 +1707,37 @@
             }
         }
 
-        // Audio error fallback
+        // ============================================================
+        //  AUDIO ERROR — CORS FALLBACK + USER FEEDBACK
+        // ============================================================
         audio.addEventListener("error", () => {
+            const currentName = select.options[select.selectedIndex]?.text || "station";
+
+            // ★ FIX: If CORS-enabled load failed, retry without crossOrigin.
+            //         This keeps the stream playing but disables the EQ
+            //         (Web Audio will silence a tainted stream).
+            if (audio.crossOrigin === "anonymous" && !corsFallbackActive) {
+                console.warn("[CORS] Stream rejected crossOrigin — retrying without CORS (EQ will be unavailable)");
+                corsFallbackActive = true;
+                audio.crossOrigin = null;
+
+                const failedSrc = audio.src || select.value;
+                if (failedSrc) {
+                    audio.src = "";
+                    audio.src = failedSrc;
+                    const p = audio.play();
+                    if (p && typeof p.then === "function") {
+                        p.then(() => {
+                            isPlaying = true;
+                            updatePlayButton();
+                            nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + currentName;
+                        }).catch(() => handlePlaybackError(currentName));
+                    }
+                }
+                return;
+            }
+
             if (isPlaying) {
-                const currentName = select.options[select.selectedIndex]?.text || "station";
                 handlePlaybackError(currentName);
             }
         });
@@ -2032,6 +2072,14 @@
             }
         }
 
+        /* ----------------------------------------------------------
+           ★ AUDIO GRAPH BUILDER
+           ----------------------------------------------------------
+           Creates the Web Audio graph once (source -> 8 filters ->
+           destination). Requires the audio element to be CORS-clean,
+           otherwise the browser will silence the output. The core
+           script handles that by setting crossOrigin="anonymous".
+           ---------------------------------------------------------- */
         function buildAudioGraph() {
             if (audioCtx) return true;
             try {
@@ -2050,7 +2098,8 @@
                     f.type = band.type;
                     f.frequency.value = band.freq;
                     if (band.q !== null && band.q !== undefined) f.Q.value = band.q;
-                    f.gain.value = eqEnabled ? (currentEQValues[i] || 0) : 0;
+                    /* Start flat — the current values are applied by caller */
+                    f.gain.value = 0;
                     prev.connect(f);
                     prev = f;
                     eqNodes.push(f);
@@ -2116,17 +2165,39 @@
             return a ? a.getAttribute("data-preset") : null;
         }
 
+        /* ----------------------------------------------------------
+           ★ EQ BADGE — reflects real state of the audio graph
+           ---------------------------------------------------------- */
         function updateEQBadge() {
             if (!mpBadgeEQ) return;
-            if (eqEnabled && eqNodes.length) {
-                setBadge(mpBadgeEQ, "EQ On", "live");
-            } else if (eqEnabled) {
-                setBadge(mpBadgeEQ, "EQ Init", "busy");
-            } else {
+            if (!eqEnabled) {
                 setBadge(mpBadgeEQ, "EQ Off", "");
+                return;
             }
+            if (!eqNodes.length) {
+                setBadge(mpBadgeEQ, "EQ Init", "busy");
+                return;
+            }
+            /* If we're in CORS-fallback mode the EQ is present but the
+               browser will silence the Web Audio path — show warning. */
+            if (typeof corsFallbackActive !== "undefined" && corsFallbackActive) {
+                setBadge(mpBadgeEQ, "EQ Bypassed (CORS)", "err");
+                return;
+            }
+            setBadge(mpBadgeEQ, "EQ On", "live");
         }
 
+        /* ----------------------------------------------------------
+           ★ TOGGLE EQ — the core fix
+           ----------------------------------------------------------
+           When enabled:
+             1. Build the Web Audio graph (only once).
+             2. Resume the AudioContext (may be suspended).
+             3. Apply the stored gain values to each filter.
+             4. Re-trigger playback if the audio element got paused.
+           When disabled:
+             Set all filter gains to 0 (transparent pass-through).
+           ---------------------------------------------------------- */
         function toggleEQ(on) {
             eqEnabled = !!on;
 
@@ -2134,6 +2205,12 @@
             if (mpEqPanel) mpEqPanel.hidden = !eqEnabled;
 
             if (eqEnabled) {
+                /* Warn if the current stream fell back to no-CORS mode */
+                var corsBypass = (typeof corsFallbackActive !== "undefined") && corsFallbackActive;
+                if (corsBypass) {
+                    flashSub("This stream doesn't support CORS — EQ will be bypassed");
+                }
+
                 var ok = buildAudioGraph();
                 if (!ok) {
                     eqEnabled = false;
@@ -2145,28 +2222,49 @@
                     return;
                 }
 
-                resumeAudioCtx();
-
-                /* Restore slider state to audio filters */
-                for (var i = 0; i < currentEQValues.length; i++) {
-                    if (eqNodes[i] && eqNodes[i].gain) {
-                        eqNodes[i].gain.value = currentEQValues[i] || 0;
+                /* ★ Make sure the audio context is running (browsers
+                   start it suspended until a user gesture). */
+                resumeAudioCtx().then(function () {
+                    /* Apply stored gains now that the context is live */
+                    for (var i = 0; i < currentEQValues.length; i++) {
+                        if (eqNodes[i] && eqNodes[i].gain) {
+                            eqNodes[i].gain.value = currentEQValues[i] || 0;
+                        }
                     }
-                }
+
+                    /* ★ If audio was playing, re-trigger to make sure
+                       creating the source node didn't silently pause
+                       the element. */
+                    if (typeof audio !== "undefined" && audio && !audio.paused && audio.readyState > 0) {
+                        var p = audio.play();
+                        if (p && typeof p.catch === "function") p.catch(function () {});
+                    }
+
+                    updateEQBadge();
+                });
+
+                /* Optimistic badge update while resume resolves */
+                updateEQBadge();
             } else {
-                /* Mute all filter gains while keeping the graph in place */
+                /* Mute all filter gains but keep the graph in place */
                 for (var j = 0; j < eqNodes.length; j++) {
                     if (eqNodes[j] && eqNodes[j].gain) eqNodes[j].gain.value = 0;
                 }
+                updateEQBadge();
             }
-            updateEQBadge();
+
             saveEQ();
         }
 
+        /* ----------------------------------------------------------
+           AUDIO CONTEXT RESUME (returns a Promise)
+           ---------------------------------------------------------- */
         function resumeAudioCtx() {
-            if (audioCtx && audioCtx.state === "suspended") {
-                audioCtx.resume().catch(function () { /* noop */ });
+            if (!audioCtx) return Promise.resolve();
+            if (audioCtx.state === "suspended") {
+                return audioCtx.resume().catch(function () {});
             }
+            return Promise.resolve();
         }
 
         /* ==========================================================
@@ -2502,7 +2600,7 @@
         /* ==========================================================
            ★ UPGRADED 8-BAND VISUALIZER
            ========================================================== */
-        var BAR_COUNT = 8;              // 8 bars matching the 8 EQ bands
+        var BAR_COUNT = 8;
         var bars = [];
         var targets = [];
         var peaks = [];
@@ -2559,7 +2657,6 @@
                 var active = !audio.paused && !audio.ended && audio.readyState > 2;
                 for (var i = 0; i < BAR_COUNT; i++) {
                     if (active) {
-                        /* Simulated energy — mid bands slightly hotter */
                         var curve = 0.85 + 0.15 * Math.sin(i / BAR_COUNT * Math.PI);
                         targets[i] = (0.18 + Math.random() * 0.82) * curve;
                     } else {
@@ -2570,7 +2667,6 @@
 
             vCtx.clearRect(0, 0, vW, vH);
 
-            /* Dark background gradient */
             var bg = vCtx.createLinearGradient(0, 0, vW, vH);
             bg.addColorStop(0, "#0a0a0f");
             bg.addColorStop(0.5, "#100814");
@@ -2578,7 +2674,6 @@
             vCtx.fillStyle = bg;
             vCtx.fillRect(0, 0, vW, vH);
 
-            /* Retro scan lines */
             vCtx.strokeStyle = "rgba(0, 255, 255, 0.05)";
             vCtx.lineWidth = 0.5;
             for (var sy = 0; sy < vH; sy += 4) {
@@ -2599,7 +2694,6 @@
                 var x = b * (bw + gap) + gap;
                 var y = vH - h - 6;
 
-                /* Peak tracking */
                 if (bars[b] > peaks[b]) {
                     peaks[b] = bars[b];
                     peakDecay[b] = 0;
@@ -2613,12 +2707,10 @@
                 var bandColor = (EQ_BANDS[b] && EQ_BANDS[b].color) || "#ff6b35";
                 var bandGlow = hexToRgba(bandColor, 0.55);
 
-                /* Inner fill: dark with slight band tint */
                 vCtx.fillStyle = "rgba(0,0,0,0.7)";
                 roundRectPath(vCtx, x + 1.5, y + 1.5, bw - 3, h - 3, 3);
                 vCtx.fill();
 
-                /* Colored outline */
                 vCtx.strokeStyle = bandColor;
                 vCtx.lineWidth = 2.4;
                 vCtx.shadowColor = bandGlow;
@@ -2627,7 +2719,6 @@
                 vCtx.stroke();
                 vCtx.shadowBlur = 0;
 
-                /* Peak indicator */
                 if (peakH > h + 2) {
                     vCtx.strokeStyle = hexToRgba(bandColor, 0.95);
                     vCtx.lineWidth = 2;
@@ -2638,7 +2729,6 @@
                 }
             }
 
-            /* Labels along the bottom */
             vCtx.font = "700 8.5px 'Inter', sans-serif";
             vCtx.textAlign = "center";
             vCtx.fillStyle = "rgba(139, 148, 158, 0.6)";
@@ -2898,6 +2988,7 @@
             startElapsed();
             resumeAudioCtx();
             updatePanelTrack();
+            updateEQBadge();
             setMediaPlaybackState("playing");
             setMediaPositionState(true);
 
@@ -2939,6 +3030,7 @@
             setBadge(mpBadgeState, "Error", "err");
             stopElapsed();
             syncPlayIcons();
+            updateEQBadge();
             setMediaPlaybackState("none");
         });
 
@@ -3049,7 +3141,6 @@
         /* --- EQ reset --- */
         if (mpEqReset) {
             mpEqReset.addEventListener("click", function () {
-                /* Reset sliders + filters to flat */
                 currentEQValues = [0, 0, 0, 0, 0, 0, 0, 0];
                 for (var i = 0; i < eqNodes.length; i++) {
                     if (eqNodes[i] && eqNodes[i].gain) eqNodes[i].gain.value = 0;
@@ -3193,7 +3284,6 @@
 
             var presetName = getActivePreset();
             if (!presetName) {
-                /* Try to match loaded values to a preset */
                 for (var pn in EQ_PRESETS) {
                     var arr = EQ_PRESETS[pn];
                     var match = true;
