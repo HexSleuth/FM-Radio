@@ -6,8 +6,7 @@
     <title>📻 Indian FM Radio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13">
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13"></script>
     <style>
         *,
         *::before,
@@ -449,7 +448,696 @@
             color: #ff6b35;
         }
 
+        /* ==========================================================
+           ===== UPGRADED MUSIC PLAYER PANEL ========================
+           ========================================================== */
+        .music-panel {
+            position: relative;
+        }
+
+        .mp-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .mp-head h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid #ff6b35;
+            padding-left: 16px;
+        }
+        .mp-head h2 i {
+            color: #ff6b35;
+            font-size: 18px;
+        }
+        .mp-head-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .mp-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            color: #c9d1d9;
+            font-family: 'Inter', sans-serif;
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 9px 16px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all .25s ease;
+            white-space: nowrap;
+        }
+        .mp-chip:hover {
+            background: rgba(255, 255, 255, .1);
+            border-color: rgba(255, 107, 53, .4);
+            transform: translateY(-1px);
+        }
+        .mp-chip.active {
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(255, 107, 53, .35);
+        }
+        .mp-chip i {
+            font-size: 12px;
+        }
+
+        .mp-grid {
+            display: grid;
+            grid-template-columns: 1.05fr 1fr 1.15fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .mp-card {
+            background: linear-gradient(145deg, #161b22, #1c2333);
+            border: 1px solid rgba(255, 255, 255, .05);
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .04);
+            position: relative;
+            overflow: hidden;
+        }
+        .mp-card::after {
+            content: '';
+            position: absolute;
+            top: -70px;
+            right: -70px;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(255, 107, 53, .10), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .mp-card-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #8b949e;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-card-label i {
+            color: #ff6b35;
+            font-size: 12px;
+        }
+
+        /* --- Visualizer --- */
+        .mp-canvas {
+            display: block;
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, .28);
+            border: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .mp-now {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-art {
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #ff6b35;
+            background: linear-gradient(135deg, rgba(255, 107, 53, .22), rgba(255, 140, 90, .08));
+            border: 1px solid rgba(255, 107, 53, .25);
+        }
+        .mp-art.spin {
+            animation: mpSpinGlow 2.4s ease-in-out infinite;
+        }
+        @keyframes mpSpinGlow {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 107, 53, 0); }
+            50%      { box-shadow: 0 0 22px rgba(255, 107, 53, .45); }
+        }
+
+        .mp-now-meta {
+            flex: 1;
+            min-width: 0;
+        }
+        .mp-now-name {
+            font-size: 14.5px;
+            font-weight: 700;
+            color: #e8edf5;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mp-now-sub {
+            font-size: 11.5px;
+            color: #8b949e;
+            margin-top: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mp-fav-btn {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+            color: #8b949e;
+            cursor: pointer;
+            transition: all .25s ease;
+            font-size: 14px;
+        }
+        .mp-fav-btn:hover {
+            color: #ff6b35;
+            border-color: rgba(255, 107, 53, .4);
+            transform: scale(1.08);
+        }
+        .mp-fav-btn.on {
+            color: #ff4d6d;
+            border-color: rgba(255, 77, 109, .5);
+            background: rgba(255, 77, 109, .12);
+        }
+
+        .mp-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            padding: 5px 11px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, .05);
+            color: #8b949e;
+            border: 1px solid rgba(255, 255, 255, .05);
+        }
+        .mp-badge.live {
+            color: #3fb950;
+            background: rgba(46, 160, 67, .12);
+            border-color: rgba(46, 160, 67, .3);
+        }
+        .mp-badge.busy {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, .12);
+            border-color: rgba(255, 107, 53, .3);
+        }
+        .mp-badge.err {
+            color: #ff4d6d;
+            background: rgba(255, 77, 109, .12);
+            border-color: rgba(255, 77, 109, .3);
+        }
+
+        /* --- Transport --- */
+        .mp-transport {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-tbtn {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            color: #c9d1d9;
+            background: rgba(255, 255, 255, .06);
+            transition: all .25s ease;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, .3);
+        }
+        .mp-tbtn:hover {
+            background: rgba(255, 255, 255, .12);
+            transform: scale(1.08);
+        }
+        .mp-tbtn-main {
+            width: 60px;
+            height: 60px;
+            font-size: 19px;
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            box-shadow: 0 8px 22px rgba(255, 107, 53, .4);
+        }
+        .mp-tbtn-main:hover {
+            box-shadow: 0 12px 28px rgba(255, 107, 53, .5);
+        }
+        .mp-tbtn-main.playing {
+            background: linear-gradient(135deg, #2ea043, #3fb950);
+            box-shadow: 0 8px 22px rgba(46, 160, 67, .4);
+        }
+        .mp-tbtn-sm {
+            width: 36px;
+            height: 36px;
+            font-size: 13px;
+            flex: 0 0 36px;
+        }
+
+        .mp-vol-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 50px;
+            background: rgba(0, 0, 0, .25);
+            position: relative;
+            z-index: 1;
+        }
+        .mp-range {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, .1);
+            outline: none;
+            cursor: pointer;
+        }
+        .mp-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #ff6b35;
+            border: 3px solid #0d1117;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, .45);
+            cursor: pointer;
+        }
+        .mp-range::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ff6b35;
+            border: 3px solid #0d1117;
+            cursor: pointer;
+        }
+        .mp-vol-val {
+            font-size: 12px;
+            font-weight: 700;
+            color: #c9d1d9;
+            min-width: 42px;
+            text-align: right;
+        }
+
+        /* ==========================================================
+           ===== UPGRADED 8-BAND EQUALIZER ==========================
+           ========================================================== */
+        .mp-eq {
+            margin-top: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-eq[hidden] {
+            display: none;
+        }
+
+        .mp-eq-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .mp-eq-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.4px;
+            text-transform: uppercase;
+            color: #8b949e;
+        }
+        .mp-eq-title i {
+            color: #ff6b35;
+            font-size: 12px;
+        }
+        .mp-eq-reset {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, .1);
+            background: rgba(255, 255, 255, .04);
+            color: #8b949e;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all .22s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mp-eq-reset:hover {
+            color: #ff6b35;
+            border-color: rgba(255, 107, 53, .45);
+            transform: rotate(-30deg);
+        }
+
+        .mp-eq-presets {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .mp-eq-preset-btn {
+            flex: 1;
+            min-width: 44px;
+            padding: 7px 4px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+            color: #8b949e;
+            font-family: 'Inter', sans-serif;
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .2s ease;
+            white-space: nowrap;
+        }
+        .mp-eq-preset-btn:hover {
+            color: #c9d1d9;
+            border-color: rgba(255, 107, 53, .35);
+        }
+        .mp-eq-preset-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            border-color: transparent;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, .3);
+        }
+
+        .mp-eq-bands {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            padding: 12px 10px;
+            background: rgba(0, 0, 0, .28);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, .04);
+        }
+
+        .mp-eq-band-row {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .mp-eq-band-label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8b949e;
+            min-width: 38px;
+            text-align: right;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+            flex: 0 0 38px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .mp-eq-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            border-radius: 6px;
+            background:
+                linear-gradient(90deg,
+                    rgba(255, 255, 255, .04) 0%,
+                    rgba(255, 255, 255, .10) 50%,
+                    rgba(255, 255, 255, .04) 100%);
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            min-width: 0;
+        }
+        .mp-eq-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--band-color, #ff6b35);
+            border: 2px solid #0d1117;
+            box-shadow: 0 0 8px var(--band-glow, rgba(255, 107, 53, .55));
+            cursor: pointer;
+            transition: transform .15s ease;
+        }
+        .mp-eq-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+        }
+        .mp-eq-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--band-color, #ff6b35);
+            border: 2px solid #0d1117;
+            cursor: pointer;
+        }
+
+        .mp-eq-band-value {
+            font-size: 10px;
+            font-weight: 700;
+            color: #c9d1d9;
+            min-width: 40px;
+            text-align: right;
+            flex: 0 0 40px;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: .2px;
+        }
+
+        /* ==========================================================
+           ===== SLEEP TIMER ========================================
+           ========================================================== */
+        .mp-sleep {
+            margin-top: 18px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-sleep-btns {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .mp-sleep .mp-eq-btn {
+            flex: 1;
+            min-width: 58px;
+            padding: 9px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, .08);
+            background: rgba(255, 255, 255, .04);
+            color: #8b949e;
+            font-family: 'Inter', sans-serif;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .22s ease;
+        }
+        .mp-sleep .mp-eq-btn:hover {
+            color: #c9d1d9;
+            border-color: rgba(255, 107, 53, .35);
+        }
+        .mp-sleep .mp-eq-btn.active {
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+            border-color: transparent;
+            box-shadow: 0 6px 16px rgba(255, 107, 53, .3);
+        }
+        .mp-sleep-info {
+            margin-top: 10px;
+            font-size: 11.5px;
+            color: #8b949e;
+            font-style: italic;
+        }
+
+        /* --- Playlist --- */
+        .mp-list-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, .3);
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 12px;
+            padding: 9px 14px;
+            margin-bottom: 12px;
+            transition: border-color .25s ease;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-list-search:focus-within {
+            border-color: #ff6b35;
+        }
+        .mp-list-search i {
+            color: #8b949e;
+            font-size: 12px;
+        }
+        .mp-list-search input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #c9d1d9;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            min-width: 0;
+        }
+        .mp-list-search input::placeholder {
+            color: #556;
+        }
+
+        .mp-list {
+            max-height: 330px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding-right: 6px;
+            position: relative;
+            z-index: 1;
+        }
+        .mp-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .mp-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, .03);
+            border-radius: 10px;
+        }
+        .mp-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 53, .45);
+            border-radius: 10px;
+        }
+        .mp-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 53, .7);
+        }
+
+        .mp-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 12px;
+            border-radius: 11px;
+            background: rgba(255, 255, 255, .025);
+            border: 1px solid rgba(255, 255, 255, .04);
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+        .mp-item:hover {
+            background: rgba(255, 107, 53, .09);
+            border-color: rgba(255, 107, 53, .3);
+            transform: translateX(3px);
+        }
+        .mp-item.playing {
+            background: rgba(255, 107, 53, .14);
+            border-color: rgba(255, 107, 53, .5);
+        }
+        .mp-item-icon {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #ff6b35;
+            background: rgba(255, 107, 53, .12);
+        }
+        .mp-item.playing .mp-item-icon {
+            color: #fff;
+            background: linear-gradient(135deg, #ff6b35, #ff8c5a);
+        }
+        .mp-item-body {
+            flex: 1;
+            min-width: 0;
+        }
+        .mp-item-name {
+            font-size: 12.8px;
+            font-weight: 600;
+            color: #dbe3ee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mp-item-tag {
+            font-size: 10.5px;
+            color: #6e7681;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mp-item-fav {
+            width: 26px;
+            height: 26px;
+            flex: 0 0 26px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: #4d5561;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all .2s ease;
+        }
+        .mp-item-fav:hover {
+            color: #ff4d6d;
+            transform: scale(1.15);
+        }
+        .mp-item-fav.on {
+            color: #ff4d6d;
+        }
+        .mp-empty {
+            text-align: center;
+            padding: 26px 10px;
+            font-size: 12.5px;
+            color: #556;
+            font-style: italic;
+        }
+
         /* ===== RESPONSIVE ===== */
+        @media (max-width:1100px) {
+            .mp-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .mp-playlist-card {
+                grid-column: 1 / -1;
+            }
+        }
         @media (max-width:768px) {
             .blog-header {
                 padding: 12px 16px;
@@ -468,6 +1156,7 @@
             }
             .main-content {
                 padding: 20px 16px;
+                gap: 30px;
             }
             .player-card {
                 padding: 20px;
@@ -475,6 +1164,23 @@
             .featured-grid {
                 grid-template-columns: 1fr 1fr;
             }
+            .mp-grid {
+                grid-template-columns: 1fr;
+            }
+            .mp-head h2 {
+                font-size: 20px;
+            }
+            .mp-chip span {
+                display: none;
+            }
+            .mp-chip {
+                padding: 10px 13px;
+            }
+            .mp-list {
+                max-height: 260px;
+            }
+            .mp-eq-band-label { min-width: 34px; flex: 0 0 34px; font-size: 9.5px; }
+            .mp-eq-band-value { min-width: 36px; flex: 0 0 36px; font-size: 9.5px; }
         }
         @media (max-width:480px) {
             .featured-grid {
@@ -487,6 +1193,7 @@
                 width: 60px;
                 height: 60px;
             }
+            .mp-eq-preset-btn { min-width: 38px; font-size: 9px; }
         }
 
         /* ===== ANIMATIONS ===== */
@@ -562,6 +1269,124 @@
                 </div>
             </section>
 
+            <!-- ============================================================
+                 UPGRADED MUSIC PLAYER PANEL
+                 ============================================================ -->
+            <section class="music-panel" id="music-panel">
+                <div class="mp-head">
+                    <h2><i class="fas fa-sliders-h"></i> Music Player Panel</h2>
+                    <div class="mp-head-actions">
+                        <button class="mp-chip active" id="mp-all-tab"><i class="fas fa-list"></i> <span>All Stations</span></button>
+                        <button class="mp-chip" id="mp-fav-tab"><i class="fas fa-heart"></i> <span>Favorites</span></button>
+                        <button class="mp-chip" id="mp-notify-btn"><i class="fas fa-bell"></i> <span>Notify</span></button>
+                        <button class="mp-chip active" id="mp-media-btn" title="Hardware / lock-screen media keys"><i class="fas fa-tv"></i> <span>Media Keys</span></button>
+                        <button class="mp-chip" id="mp-eq-toggle"><i class="fas fa-wave-square"></i> <span>Equalizer</span></button>
+                    </div>
+                </div>
+
+                <div class="mp-grid">
+
+                    <!-- ---------- Visualizer / Now Playing ---------- -->
+                    <div class="mp-card mp-visual-card">
+                        <div class="mp-card-label"><i class="fas fa-chart-simple"></i> 8-Band Live Visualizer</div>
+                        <canvas id="mp-visualizer" class="mp-canvas"></canvas>
+
+                        <div class="mp-now">
+                            <div class="mp-art" id="mp-art"><i class="fas fa-music"></i></div>
+                            <div class="mp-now-meta">
+                                <div class="mp-now-name" id="mp-now-name">No station selected</div>
+                                <div class="mp-now-sub" id="mp-now-sub">Pick a station to start listening</div>
+                            </div>
+                            <button class="mp-fav-btn" id="mp-fav-btn" title="Add to favorites">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="mp-badges">
+                            <span class="mp-badge" id="mp-badge-state">Idle</span>
+                            <span class="mp-badge" id="mp-badge-format">—</span>
+                            <span class="mp-badge" id="mp-badge-time">00:00</span>
+                            <span class="mp-badge" id="mp-badge-media">Media Keys</span>
+                            <span class="mp-badge" id="mp-badge-eq">EQ Off</span>
+                        </div>
+                    </div>
+
+                    <!-- ---------- Controls ---------- -->
+                    <div class="mp-card mp-controls-card">
+                        <div class="mp-card-label"><i class="fas fa-gamepad"></i> Controls</div>
+
+                        <div class="mp-transport">
+                            <button class="mp-tbtn" id="mp-prev" title="Previous Station">
+                                <i class="fas fa-backward"></i>
+                            </button>
+                            <button class="mp-tbtn mp-tbtn-main" id="mp-play" title="Play / Pause">
+                                <i class="fas fa-play"></i>
+                            </button>
+                            <button class="mp-tbtn" id="mp-next" title="Next Station">
+                                <i class="fas fa-forward"></i>
+                            </button>
+                        </div>
+
+                        <div class="mp-vol-row">
+                            <button class="mp-tbtn mp-tbtn-sm" id="mp-mute" title="Mute">
+                                <i class="fas fa-volume-high"></i>
+                            </button>
+                            <input type="range" id="mp-volume" class="mp-range" min="0" max="1" step="0.01" value="0.8">
+                            <span class="mp-vol-val" id="mp-vol-val">80%</span>
+                        </div>
+
+                        <!-- ============================================================
+                             UPGRADED 8-BAND EQUALIZER PANEL
+                             ============================================================ -->
+                        <div class="mp-eq" id="mp-eq-panel" hidden>
+                            <div class="mp-eq-head">
+                                <div class="mp-eq-title">
+                                    <i class="fas fa-sliders"></i> 8-Band Graphic EQ
+                                </div>
+                                <button class="mp-eq-reset" id="mp-eq-reset" title="Reset to Flat">
+                                    <i class="fas fa-undo"></i>
+                                </button>
+                            </div>
+                            <div class="mp-eq-presets" id="mp-eq-presets">
+                                <button class="mp-eq-preset-btn active" data-preset="flat">Flat</button>
+                                <button class="mp-eq-preset-btn" data-preset="bass">Bass</button>
+                                <button class="mp-eq-preset-btn" data-preset="vocal">Vocal</button>
+                                <button class="mp-eq-preset-btn" data-preset="party">Party</button>
+                                <button class="mp-eq-preset-btn" data-preset="rock">Rock</button>
+                                <button class="mp-eq-preset-btn" data-preset="jazz">Jazz</button>
+                            </div>
+                            <div class="mp-eq-bands" id="mp-eq-bands">
+                                <!-- 8 band sliders injected by JS -->
+                            </div>
+                        </div>
+
+                        <div class="mp-sleep">
+                            <div class="mp-card-label"><i class="fas fa-moon"></i> Sleep Timer</div>
+                            <div class="mp-sleep-btns">
+                                <button class="mp-eq-btn active" data-sleep="0">Off</button>
+                                <button class="mp-eq-btn" data-sleep="15">15m</button>
+                                <button class="mp-eq-btn" data-sleep="30">30m</button>
+                                <button class="mp-eq-btn" data-sleep="60">60m</button>
+                            </div>
+                            <div class="mp-sleep-info" id="mp-sleep-info">No timer set</div>
+                        </div>
+                    </div>
+
+                    <!-- ---------- Playlist ---------- -->
+                    <div class="mp-card mp-playlist-card">
+                        <div class="mp-card-label">
+                            <i class="fas fa-list-ul"></i> <span id="mp-list-title">All Stations</span>
+                        </div>
+                        <div class="mp-list-search">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="mp-list-search" placeholder="Filter stations...">
+                        </div>
+                        <div class="mp-list" id="mp-list"></div>
+                    </div>
+
+                </div>
+            </section>
+
             <!-- Featured Stations -->
             <section class="featured-section">
                 <h2><i class="fas fa-star"></i> Featured Stations</h2>
@@ -575,6 +1400,9 @@
         </footer>
     </div>
 
+    <!-- ============================================================
+         CORE RADIO ENGINE
+         ============================================================ -->
     <script>
         // ============================================================
         //  STATIC FALLBACK STATIONS (with AIR/Akashvani)
@@ -854,7 +1682,7 @@
                 allStations = stations;
                 filteredStations = stations;
                 populateDropdown(stations);
-                fetchMsg.textContent = "✅ Loaded " + stations.length + " stations from Radio Browser.";
+                fetchMsg.textContent = "✔ Loaded " + stations.length + " stations from Radio Browser.";
             } catch (err) {
                 console.warn("API fetch failed, using static fallback:", err);
                 allStations = staticStations;
@@ -888,729 +1716,2271 @@
         fetchBtn.addEventListener("click", fetchStationsFromAPI);
     </script>
 
+    <!-- ============================================================
+         UPGRADED MUSIC PLAYER PANEL — ENGINE
+         (8-band EQ + Media Session API + 8-band visualizer)
+         ============================================================ -->
+    <script>
+    (function () {
+        "use strict";
 
-<script>
-(function () {
-  "use strict";
+        /* ----------------------------------------------------------
+           ELEMENT REFERENCES
+           ---------------------------------------------------------- */
+        var $ = function (id) { return document.getElementById(id); };
 
-  /* ==========================================================
-     CONFIGURATION
-     ========================================================== */
-  var ACP = {
-    /* --- interaction shields --- */
-    rightClick       : true,
-    selection        : true,
-    copyCutPaste     : true,
-    dragDrop         : true,
-    selectAll        : true,
-    findOnPage       : false,
-    savePage         : true,
-    printKeys        : true,
-    viewSource       : true,
-    devtoolsKeys     : true,
+        var panel        = $("music-panel");
+        if (!panel) return;
 
-    /* --- advanced client-side security --- */
-    frameBust        : true,
-    iframeBlock      : true,
-    watermark        : true,
-    watermarkText    : "",                 // "" = auto host + date
-    clipboardPoison  : true,
-    printScreenTrap  : true,
-    consoleTrap      : true,
-    devtoolsDetect   : true,
-    debuggerTrap     : false,
-    lockOnDevtools   : true,
-    blurOnBlur       : true,
-    contextPoison    : true,
-    mutationGuard    : true,
-    disableImgMenu   : true,
-    killDrop         : true,
+        var vCanvas      = $("mp-visualizer");
+        var vCtx         = vCanvas ? vCanvas.getContext("2d") : null;
 
-    /* --- UX / look --- */
-    keepFormsUsable  : true,
-    showToast        : true,
-    toastText        : "This content is protected.",
+        var mpArt        = $("mp-art");
+        var mpNowName    = $("mp-now-name");
+        var mpNowSub     = $("mp-now-sub");
+        var mpFavBtn     = $("mp-fav-btn");
 
-    /* --- Font Awesome icon classes (fa-solid) --- */
-    iconToast        : "fa-shield-halved",
-    iconGuard        : "fa-lock",
-    iconWatermark    : "fa-shield-halved",
-    iconPill         : "fa-circle-exclamation",
+        var mpBadgeState = $("mp-badge-state");
+        var mpBadgeFmt   = $("mp-badge-format");
+        var mpBadgeTime  = $("mp-badge-time");
+        var mpBadgeMedia = $("mp-badge-media");
+        var mpBadgeEQ    = $("mp-badge-eq");
 
-    /* --- Console banner --- */
-    consoleMessage : "%c⛔ STOP! This content is protected. Unauthorized copying is prohibited.",
-    consoleStyle   : "color:#ff4d6d; font-size:20px; font-weight:bold; text-shadow:0 0 8px rgba(255,77,109,.6);",
+        var mpPlay       = $("mp-play");
+        var mpPrev       = $("mp-prev");
+        var mpNext       = $("mp-next");
+        var mpMute       = $("mp-mute");
+        var mpVolume     = $("mp-volume");
+        var mpVolVal     = $("mp-vol-val");
 
-    /* --- Asset loader --- */
-    fontAwesomeURL : "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-  };
-  /* ========================================================== */
+        var mpEqToggle   = $("mp-eq-toggle");
+        var mpEqPanel    = $("mp-eq-panel");
+        var mpEqPresets  = $("mp-eq-presets");
+        var mpEqBands    = $("mp-eq-bands");
+        var mpEqReset    = $("mp-eq-reset");
+
+        var mpSleepBtns  = panel.querySelectorAll(".mp-eq-btn[data-sleep]");
+        var mpSleepInfo  = $("mp-sleep-info");
+
+        var mpAllTab     = $("mp-all-tab");
+        var mpFavTab     = $("mp-fav-tab");
+        var mpNotifyBtn  = $("mp-notify-btn");
+        var mpMediaBtn   = $("mp-media-btn");
+        var mpListTitle  = $("mp-list-title");
+        var mpListSearch = $("mp-list-search");
+        var mpList       = $("mp-list");
+
+        /* ----------------------------------------------------------
+           STATE
+           ---------------------------------------------------------- */
+        var FAV_KEY      = "ifr_favorites_v1";
+        var EQ_KEY       = "ifr_eq_v1";
+        var favorites    = [];
+        var listMode     = "all";           // "all" | "fav"
+        var notifyOn     = false;
+        var lastNotified = "";
+        var currentMeta  = null;
+        var elapsedStart = 0;
+        var elapsedTimer = null;
+        var sleepTimeout = null;
+        var sleepTick    = null;
+        var sleepEndsAt  = 0;
+        var stoppedByUser = false;
+        var flashTimer   = null;
+
+        /* ----------------------------------------------------------
+           STORAGE HELPERS
+           ---------------------------------------------------------- */
+        function loadFavorites() {
+            try {
+                var raw = localStorage.getItem(FAV_KEY);
+                if (raw) {
+                    var parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) favorites = parsed;
+                }
+            } catch (e) {
+                favorites = [];
+            }
+        }
+
+        function saveFavorites() {
+            try {
+                localStorage.setItem(FAV_KEY, JSON.stringify(favorites));
+            } catch (e) { /* storage unavailable */ }
+        }
+
+        function isFavorite(url) {
+            for (var i = 0; i < favorites.length; i++) {
+                if (favorites[i].url === url) return true;
+            }
+            return false;
+        }
+
+        function toggleFavorite(st) {
+            if (!st || !st.url) return;
+            if (isFavorite(st.url)) {
+                favorites = favorites.filter(function (f) { return f.url !== st.url; });
+            } else {
+                favorites.push({ name: st.name || "Unknown", url: st.url, tags: st.tags || "" });
+            }
+            saveFavorites();
+            renderList();
+            syncFavButton();
+        }
+
+        /* ----------------------------------------------------------
+           FORMAT HELPERS
+           ---------------------------------------------------------- */
+        function detectFormat(url) {
+            var u = (url || "").toLowerCase();
+            if (u.indexOf(".m3u8") !== -1 || u.indexOf("hls") !== -1) return "hls";
+            if (u.indexOf("aac") !== -1) return "aac";
+            if (u.indexOf("ogg") !== -1 || u.indexOf("opus") !== -1) return "ogg";
+            if (u.indexOf("flac") !== -1) return "flac";
+            return "mp3";
+        }
+
+        function describeFormat(url, tags) {
+            var f = detectFormat(url);
+            var map = {
+                hls:  "HLS Live Stream",
+                aac:  "AAC Stream",
+                ogg:  "OGG Stream",
+                flac: "FLAC Stream",
+                mp3:  "MP3 Stream"
+            };
+            var base = map[f] || "Live Stream";
+            if (tags) {
+                var t = tags.split(",").slice(0, 3).join(", ").trim();
+                if (t) return base + " · " + t;
+            }
+            return base;
+        }
+
+        function prettyFormat(url) {
+            var f = detectFormat(url);
+            return f.toUpperCase();
+        }
+
+        /* ----------------------------------------------------------
+           STATION RESOLUTION
+           ---------------------------------------------------------- */
+        function findStationMeta(url) {
+            var i;
+            try {
+                for (i = 0; i < allStations.length; i++) {
+                    if (allStations[i].url === url) return allStations[i];
+                }
+            } catch (e) { /* noop */ }
+            for (i = 0; i < favorites.length; i++) {
+                if (favorites[i].url === url) return favorites[i];
+            }
+            return null;
+        }
+
+        function getStationFromSelect() {
+            if (!select || !select.value) return null;
+            var url = select.value;
+            var opt = select.options[select.selectedIndex];
+            var name = opt ? opt.text : url;
+            var meta = findStationMeta(url);
+            return {
+                id: url,
+                name: (meta && meta.name) || name || "Unknown Station",
+                url: url,
+                tags: (meta && meta.tags) || "",
+                format: detectFormat(url),
+                formatDesc: describeFormat(url, (meta && meta.tags) || "")
+            };
+        }
+
+        function ensureOption(url, name) {
+            if (!select) return;
+            for (var i = 0; i < select.options.length; i++) {
+                if (select.options[i].value === url) return;
+            }
+            var o = document.createElement("option");
+            o.value = url;
+            o.textContent = name;
+            select.appendChild(o);
+        }
+
+        /* ----------------------------------------------------------
+           SMALL UI FLASH (uses the existing "now playing" subtitle)
+           ---------------------------------------------------------- */
+        function flashSub(msg) {
+            if (!mpNowSub) return;
+            if (flashTimer) clearTimeout(flashTimer);
+            mpNowSub.textContent = msg;
+            flashTimer = setTimeout(function () {
+                flashTimer = null;
+                updatePanelTrack();
+            }, 2400);
+        }
+
+        /* ==========================================================
+           ★ 8-BAND GRAPHIC EQUALIZER — FREQUENCY DEFINITIONS
+           ========================================================== */
+        var EQ_BANDS = [
+            { freq: 60,   type: "lowshelf",  label: "60Hz",  q: null, color: "#ff3333" },
+            { freq: 170,  type: "peaking",   label: "170Hz", q: 1.0,  color: "#ff6633" },
+            { freq: 310,  type: "peaking",   label: "310Hz", q: 1.0,  color: "#ff9933" },
+            { freq: 600,  type: "peaking",   label: "600Hz", q: 1.0,  color: "#ffcc33" },
+            { freq: 1000, type: "peaking",   label: "1kHz",  q: 1.0,  color: "#33ff33" },
+            { freq: 3000, type: "peaking",   label: "3kHz",  q: 1.0,  color: "#33ccff" },
+            { freq: 6000, type: "peaking",   label: "6kHz",  q: 1.0,  color: "#3366ff" },
+            { freq: 8000, type: "highshelf", label: "8kHz",  q: null, color: "#9933ff" }
+        ];
+
+        var EQ_PRESETS = {
+            flat:  [0,   0,   0,   0,   0,   0,   0,   0 ],
+            bass:  [9,   7,   5,   2,   0,  -1,   1,   2 ],
+            vocal: [-3, -2,   0,   3,   6,   5,   3,   1 ],
+            party: [7,   5,   2,   0,   1,   3,   6,   7 ],
+            rock:  [5,   3,   1,  -1,  -1,   1,   3,   4 ],
+            jazz:  [3,   2,   1,   2,  -1,  -1,   2,   3 ]
+        };
+
+        var currentEQValues = [0, 0, 0, 0, 0, 0, 0, 0];
+
+        /* ----------------------------------------------------------
+           EQUALIZER — AUDIO GRAPH & UI
+           ---------------------------------------------------------- */
+        var audioCtx = null;
+        var srcNode = null;
+        var eqNodes = [];
+        var eqEnabled = false;
+
+        function hexToRgba(hex, a) {
+            var h = String(hex || "").replace("#", "");
+            if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+            var r = parseInt(h.substr(0, 2), 16) || 0;
+            var g = parseInt(h.substr(2, 2), 16) || 0;
+            var b = parseInt(h.substr(4, 2), 16) || 0;
+            return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+        }
+
+        function formatDb(v) {
+            var n = Math.round((v || 0) * 2) / 2;
+            if (n > 0) return "+" + n.toFixed(1);
+            return n.toFixed(1);
+        }
+
+        function buildEQSliderUI() {
+            if (!mpEqBands) return;
+            mpEqBands.innerHTML = "";
+
+            for (var i = 0; i < EQ_BANDS.length; i++) {
+                (function (idx) {
+                    var band = EQ_BANDS[idx];
+
+                    var row = document.createElement("div");
+                    row.className = "mp-eq-band-row";
+
+                    var label = document.createElement("span");
+                    label.className = "mp-eq-band-label";
+                    label.textContent = band.label;
+
+                    var slider = document.createElement("input");
+                    slider.type = "range";
+                    slider.className = "mp-eq-slider";
+                    slider.min = "-12";
+                    slider.max = "12";
+                    slider.step = "0.5";
+                    slider.value = String(currentEQValues[idx] || 0);
+                    slider.setAttribute("data-band", String(idx));
+                    slider.style.setProperty("--band-color", band.color);
+                    slider.style.setProperty("--band-glow", hexToRgba(band.color, 0.6));
+
+                    var val = document.createElement("span");
+                    val.className = "mp-eq-band-value";
+                    val.textContent = formatDb(currentEQValues[idx] || 0);
+
+                    slider.addEventListener("input", function () {
+                        var v = parseFloat(slider.value) || 0;
+                        currentEQValues[idx] = v;
+                        val.textContent = formatDb(v);
+                        updateEQBand(idx, v);
+                        markPresetActive(null);
+                        saveEQ();
+                    });
+
+                    row.appendChild(label);
+                    row.appendChild(slider);
+                    row.appendChild(val);
+                    mpEqBands.appendChild(row);
+                })(i);
+            }
+        }
+
+        function refreshEQSliders() {
+            if (!mpEqBands) return;
+            var sliders = mpEqBands.querySelectorAll(".mp-eq-slider");
+            for (var i = 0; i < sliders.length; i++) {
+                var idx = parseInt(sliders[i].getAttribute("data-band"), 10);
+                sliders[i].value = String(currentEQValues[idx] || 0);
+                var valEl = sliders[i].parentElement.querySelector(".mp-eq-band-value");
+                if (valEl) valEl.textContent = formatDb(currentEQValues[idx] || 0);
+            }
+        }
+
+        function markPresetActive(name) {
+            if (!mpEqPresets) return;
+            var all = mpEqPresets.querySelectorAll(".mp-eq-preset-btn");
+            for (var i = 0; i < all.length; i++) {
+                all[i].classList.toggle("active", all[i].getAttribute("data-preset") === name);
+            }
+        }
+
+        function buildAudioGraph() {
+            if (audioCtx) return true;
+            try {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return false;
+
+                audioCtx = new AC();
+                srcNode = audioCtx.createMediaElementSource(audio);
+
+                eqNodes = [];
+                var prev = srcNode;
+
+                for (var i = 0; i < EQ_BANDS.length; i++) {
+                    var band = EQ_BANDS[i];
+                    var f = audioCtx.createBiquadFilter();
+                    f.type = band.type;
+                    f.frequency.value = band.freq;
+                    if (band.q !== null && band.q !== undefined) f.Q.value = band.q;
+                    f.gain.value = eqEnabled ? (currentEQValues[i] || 0) : 0;
+                    prev.connect(f);
+                    prev = f;
+                    eqNodes.push(f);
+                }
+
+                prev.connect(audioCtx.destination);
+                return true;
+            } catch (e) {
+                console.warn("Equalizer unavailable:", e);
+                audioCtx = null;
+                srcNode = null;
+                eqNodes = [];
+                return false;
+            }
+        }
+
+        function updateEQBand(index, gainDB) {
+            if (eqNodes[index] && eqNodes[index].gain) {
+                eqNodes[index].gain.value = eqEnabled ? gainDB : 0;
+            }
+        }
+
+        function applyPreset(name) {
+            var p = EQ_PRESETS[name];
+            if (!p) return;
+
+            currentEQValues = p.slice();
+            for (var i = 0; i < p.length; i++) {
+                if (eqNodes[i] && eqNodes[i].gain) {
+                    eqNodes[i].gain.value = eqEnabled ? p[i] : 0;
+                }
+            }
+            refreshEQSliders();
+            markPresetActive(name);
+            saveEQ();
+        }
+
+        function saveEQ() {
+            try {
+                localStorage.setItem(EQ_KEY, JSON.stringify({
+                    enabled: eqEnabled,
+                    values: currentEQValues,
+                    preset: getActivePreset()
+                }));
+            } catch (e) { /* noop */ }
+        }
+
+        function loadEQ() {
+            try {
+                var raw = localStorage.getItem(EQ_KEY);
+                if (!raw) return;
+                var data = JSON.parse(raw);
+                if (Array.isArray(data.values) && data.values.length === 8) {
+                    currentEQValues = data.values.slice();
+                }
+                if (data.enabled !== undefined) eqEnabled = !!data.enabled;
+            } catch (e) { /* noop */ }
+        }
+
+        function getActivePreset() {
+            if (!mpEqPresets) return null;
+            var a = mpEqPresets.querySelector(".mp-eq-preset-btn.active");
+            return a ? a.getAttribute("data-preset") : null;
+        }
+
+        function updateEQBadge() {
+            if (!mpBadgeEQ) return;
+            if (eqEnabled && eqNodes.length) {
+                setBadge(mpBadgeEQ, "EQ On", "live");
+            } else if (eqEnabled) {
+                setBadge(mpBadgeEQ, "EQ Init", "busy");
+            } else {
+                setBadge(mpBadgeEQ, "EQ Off", "");
+            }
+        }
+
+        function toggleEQ(on) {
+            eqEnabled = !!on;
+
+            if (mpEqToggle) mpEqToggle.classList.toggle("active", eqEnabled);
+            if (mpEqPanel) mpEqPanel.hidden = !eqEnabled;
+
+            if (eqEnabled) {
+                var ok = buildAudioGraph();
+                if (!ok) {
+                    eqEnabled = false;
+                    if (mpEqPanel) mpEqPanel.hidden = true;
+                    if (mpEqToggle) mpEqToggle.classList.remove("active");
+                    flashSub("Equalizer not supported in this browser");
+                    updateEQBadge();
+                    saveEQ();
+                    return;
+                }
+
+                resumeAudioCtx();
+
+                /* Restore slider state to audio filters */
+                for (var i = 0; i < currentEQValues.length; i++) {
+                    if (eqNodes[i] && eqNodes[i].gain) {
+                        eqNodes[i].gain.value = currentEQValues[i] || 0;
+                    }
+                }
+            } else {
+                /* Mute all filter gains while keeping the graph in place */
+                for (var j = 0; j < eqNodes.length; j++) {
+                    if (eqNodes[j] && eqNodes[j].gain) eqNodes[j].gain.value = 0;
+                }
+            }
+            updateEQBadge();
+            saveEQ();
+        }
+
+        function resumeAudioCtx() {
+            if (audioCtx && audioCtx.state === "suspended") {
+                audioCtx.resume().catch(function () { /* noop */ });
+            }
+        }
+
+        /* ==========================================================
+           ★ MEDIA SESSION API — lock-screen / hardware media keys
+           ========================================================== */
+        var MS = {
+            supported : (typeof navigator !== "undefined" && "mediaSession" in navigator),
+            enabled   : true,
+            actions   : ["play", "pause", "stop", "previoustrack", "nexttrack",
+                         "seekbackward", "seekforward", "seekto", "skipad"]
+        };
+
+        var lastPositionPush = 0;
+
+        function buildArtworkSet(name) {
+            var safe = String(name || "Indian FM Radio")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&apos;");
+
+            var short = safe.length > 24 ? safe.substring(0, 22) + "…" : safe;
+
+            var svg =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">' +
+                  '<defs>' +
+                    '<linearGradient id="mpg" x1="0" y1="0" x2="1" y2="1">' +
+                      '<stop offset="0%" stop-color="#ff6b35"/>' +
+                      '<stop offset="100%" stop-color="#ff8c5a"/>' +
+                    '</linearGradient>' +
+                  '</defs>' +
+                  '<rect width="512" height="512" rx="104" fill="#0d1117"/>' +
+                  '<circle cx="256" cy="256" r="168" fill="url(#mpg)" opacity="0.16"/>' +
+                  '<circle cx="256" cy="256" r="134" fill="none" stroke="url(#mpg)" stroke-width="10" opacity="0.55"/>' +
+                  '<text x="256" y="300" text-anchor="middle" font-family="Georgia, serif" ' +
+                    'font-size="148" font-weight="bold" fill="url(#mpg)">FM</text>' +
+                  '<text x="256" y="394" text-anchor="middle" font-family="Arial, sans-serif" ' +
+                    'font-size="32" fill="#8b949e">' + short + '</text>' +
+                '</svg>';
+
+            var uri = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+
+            return [
+                { src: uri, sizes: "96x96",   type: "image/svg+xml" },
+                { src: uri, sizes: "128x128", type: "image/svg+xml" },
+                { src: uri, sizes: "192x192", type: "image/svg+xml" },
+                { src: uri, sizes: "256x256", type: "image/svg+xml" },
+                { src: uri, sizes: "384x384", type: "image/svg+xml" },
+                { src: uri, sizes: "512x512", type: "image/svg+xml" }
+            ];
+        }
+
+        function setMediaMetadata(st) {
+            if (!MS.supported || !MS.enabled) return;
+            if (!st) return;
+            if (typeof window.MediaMetadata !== "function") return;
+            try {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title  : st.name || "Live Radio",
+                    artist : "Indian FM Radio",
+                    album  : st.formatDesc || "Live Stream",
+                    artwork: buildArtworkSet(st.name)
+                });
+            } catch (e) { /* noop */ }
+        }
+
+        function setMediaPlaybackState(state) {
+            if (!MS.supported || !MS.enabled) return;
+            try { navigator.mediaSession.playbackState = state; } catch (e) { /* noop */ }
+        }
+
+        function setMediaPositionState(force) {
+            if (!MS.supported || !MS.enabled) return;
+            if (!navigator.mediaSession.setPositionState) return;
+
+            var now = Date.now();
+            if (!force && now - lastPositionPush < 900) return;
+            lastPositionPush = now;
+
+            try {
+                var d = audio.duration;
+                if (!isFinite(d) || d <= 0) return;
+                var pos = audio.currentTime || 0;
+                if (pos > d) pos = d;
+                navigator.mediaSession.setPositionState({
+                    duration    : d,
+                    playbackRate: audio.playbackRate || 1,
+                    position    : pos
+                });
+            } catch (e) { /* noop */ }
+        }
+
+        function setCorePlayingFlag(v) {
+            try { isPlaying = v; } catch (e) { /* noop */ }
+            try { if (typeof updatePlayButton === "function") updatePlayButton(); } catch (e) { /* noop */ }
+        }
+
+        function currentStationName() {
+            if (!select) return "Indian FM Radio";
+            var opt = select.options[select.selectedIndex];
+            return (opt && opt.text) ? opt.text : "Indian FM Radio";
+        }
+
+        function mediaPlay() {
+            if (!select || !select.value) {
+                setMediaPlaybackState("none");
+                flashSub("No station selected");
+                return;
+            }
+
+            if (!audio.src) {
+                var st0 = getStationFromSelect();
+                if (st0 && typeof playStation === "function") {
+                    playStation(st0.url, st0.name);
+                }
+                return;
+            }
+
+            var p = null;
+            try { p = audio.play(); } catch (e) { p = null; }
+
+            if (p && typeof p.then === "function") {
+                p.then(function () {
+                    setCorePlayingFlag(true);
+                    nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + currentStationName();
+                    syncPlayIcons();
+                    setBadge(mpBadgeState, "Playing", "live");
+                    startElapsed();
+                    resumeAudioCtx();
+                }).catch(function () { /* audio error handler deals with it */ });
+            }
+        }
+
+        function mediaPause() {
+            try { audio.pause(); } catch (e) { /* noop */ }
+            setCorePlayingFlag(false);
+            nowPlaying.innerHTML = '<i class="fas fa-pause-circle"></i> Paused: ' + currentStationName();
+            syncPlayIcons();
+            stopElapsed();
+            setBadge(mpBadgeState, "Paused", "");
+        }
+
+        function mediaStop() {
+            stoppedByUser = true;
+            try { audio.pause(); } catch (e) { /* noop */ }
+            setCorePlayingFlag(false);
+            nowPlaying.innerHTML = '<i class="fas fa-stop-circle"></i> Stopped';
+            syncPlayIcons();
+            stopElapsed();
+            mpBadgeTime.textContent = "00:00";
+            setMediaPlaybackState("none");
+        }
+
+        function mediaNext() {
+            if (typeof nextBtn !== "undefined" && nextBtn) {
+                nextBtn.click();
+            } else if (typeof playNextStation === "function") {
+                playNextStation();
+            }
+        }
+
+        function playPreviousStation() {
+            var list = (filteredStations && filteredStations.length)
+                ? filteredStations
+                : (allStations || []);
+            if (!list.length) return;
+
+            var idx = -1;
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].url === select.value) { idx = i; break; }
+            }
+            idx = (idx <= 0) ? list.length - 1 : idx - 1;
+
+            var st = list[idx];
+            if (!st) return;
+            ensureOption(st.url, st.name);
+            select.value = st.url;
+            if (typeof playStation === "function") {
+                playStation(st.url, st.name, idx);
+            }
+        }
+
+        function mediaPrevious() {
+            playPreviousStation();
+        }
+
+        function mediaSeekBackward() {
+            var st = getStationFromSelect();
+            if (!st) return;
+            flashSub("Live radio — restarting stream from live edge");
+            if (typeof playStation === "function") {
+                playStation(st.url, st.name);
+            }
+        }
+
+        function mediaSeekForward() {
+            flashSub("Live radio — jumping to next station");
+            mediaNext();
+        }
+
+        function registerMediaHandlers() {
+            if (!MS.supported) return;
+            var ms = navigator.mediaSession;
+
+            function safeSet(action, handler) {
+                try { ms.setActionHandler(action, handler); } catch (e) { /* unsupported action */ }
+            }
+
+            safeSet("play",          function () { mediaPlay(); });
+            safeSet("pause",         function () { mediaPause(); });
+            safeSet("stop",          function () { mediaStop(); });
+            safeSet("previoustrack", function () { mediaPrevious(); });
+            safeSet("nexttrack",     function () { mediaNext(); });
+            safeSet("seekbackward",  function () { mediaSeekBackward(); });
+            safeSet("seekforward",   function () { mediaSeekForward(); });
+            safeSet("seekto",        null);
+            safeSet("skipad",        null);
+        }
+
+        function clearMediaHandlers() {
+            if (!MS.supported) return;
+            var ms = navigator.mediaSession;
+            for (var i = 0; i < MS.actions.length; i++) {
+                try { ms.setActionHandler(MS.actions[i], null); } catch (e) { /* noop */ }
+            }
+        }
+
+        function updateMediaBadge() {
+            if (!mpBadgeMedia) return;
+            if (!MS.supported) {
+                setBadge(mpBadgeMedia, "No Media API", "err");
+                return;
+            }
+            if (!MS.enabled) {
+                setBadge(mpBadgeMedia, "Media Keys Off", "");
+                return;
+            }
+            var playing = !audio.paused && !audio.ended;
+            setBadge(mpBadgeMedia, playing ? "Media Keys · Live" : "Media Keys On", playing ? "live" : "busy");
+        }
+
+        function enableMediaSession(on) {
+            MS.enabled = !!on;
+
+            if (mpMediaBtn) mpMediaBtn.classList.toggle("active", MS.enabled);
+
+            if (!MS.supported) {
+                updateMediaBadge();
+                flashSub("Media Session API not supported in this browser");
+                return;
+            }
+
+            if (MS.enabled) {
+                registerMediaHandlers();
+                setMediaMetadata(getStationFromSelect());
+                setMediaPlaybackState(audio.paused ? "paused" : "playing");
+                setMediaPositionState(true);
+            } else {
+                clearMediaHandlers();
+                try { navigator.mediaSession.metadata = null; } catch (e) { /* noop */ }
+                try { navigator.mediaSession.playbackState = "none"; } catch (e) { /* noop */ }
+            }
+            updateMediaBadge();
+        }
+
+        /* ----------------------------------------------------------
+           NOTIFICATIONS
+           ---------------------------------------------------------- */
+        function showMusicNotification(track) {
+            try {
+                if (!('Notification' in window)) return;
+                if (Notification.permission === 'denied') return;
+
+                if (Notification.permission === 'granted') {
+                    const title = track.name || 'Now Playing';
+                    const options = {
+                        body: `🎵 ${track.formatDesc || 'Audio'} · ${track.format ? track.format.toUpperCase() : ''}`,
+                        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%234b6bfb"/><text x="50" y="60" text-anchor="middle" font-size="50" fill="white">🎵</text></svg>',
+                        badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="%234b6bfb"/><text x="50" y="60" text-anchor="middle" font-size="50" fill="white">🎵</text></svg>',
+                        tag: 'hex-music-playing',
+                        renotify: true,
+                        silent: false,
+                        vibrate: [200, 100, 200],
+                        requireInteraction: false,
+                        data: { trackId: track.id, trackName: track.name }
+                    };
+                    const notification = new Notification(title, options);
+                    notification.onclick = function () {
+                        try { window.focus(); notification.close(); } catch (err) { /* noop */ }
+                    };
+                    setTimeout(function () {
+                        try { notification.close(); } catch (err) { /* noop */ }
+                    }, 6000);
+                } else {
+                    Notification.requestPermission().then(function (perm) {
+                        if (perm === 'granted') showMusicNotification(track);
+                    });
+                }
+            } catch (e) { /* noop */ }
+        }
+
+        function requestNotifyPermission() {
+            if (!('Notification' in window)) {
+                mpNotifyBtn.classList.remove("active");
+                mpNowSub.textContent = "Notifications not supported by this browser";
+                return;
+            }
+            if (Notification.permission === "granted") {
+                notifyOn = true;
+                mpNotifyBtn.classList.add("active");
+                mpNowSub.textContent = "Track notifications enabled";
+                return;
+            }
+            if (Notification.permission === "denied") {
+                notifyOn = false;
+                mpNotifyBtn.classList.remove("active");
+                mpNowSub.textContent = "Notifications blocked in browser settings";
+                return;
+            }
+            Notification.requestPermission().then(function (perm) {
+                notifyOn = (perm === "granted");
+                mpNotifyBtn.classList.toggle("active", notifyOn);
+                mpNowSub.textContent = notifyOn
+                    ? "Track notifications enabled"
+                    : "Notification permission declined";
+            }).catch(function () {
+                notifyOn = false;
+                mpNotifyBtn.classList.remove("active");
+            });
+        }
+
+        /* ==========================================================
+           ★ UPGRADED 8-BAND VISUALIZER
+           ========================================================== */
+        var BAR_COUNT = 8;              // 8 bars matching the 8 EQ bands
+        var bars = [];
+        var targets = [];
+        var peaks = [];
+        var peakDecay = [];
+        var vW = 300, vH = 120;
+        var lastTargetUpdate = 0;
+
+        function initBars() {
+            bars = [];
+            targets = [];
+            peaks = [];
+            peakDecay = [];
+            for (var i = 0; i < BAR_COUNT; i++) {
+                bars.push(0.05);
+                targets.push(0.05);
+                peaks.push(0.05);
+                peakDecay.push(0);
+            }
+        }
+
+        function sizeCanvas() {
+            if (!vCanvas || !vCtx) return;
+            var dpr = Math.min(window.devicePixelRatio || 1, 2);
+            var rect = vCanvas.getBoundingClientRect();
+            vW = Math.max(40, rect.width);
+            vH = Math.max(40, rect.height);
+            vCanvas.width = Math.round(vW * dpr);
+            vCanvas.height = Math.round(vH * dpr);
+            vCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function roundRectPath(c, x, y, w, h, r) {
+            if (r > h / 2) r = h / 2;
+            if (r > w / 2) r = w / 2;
+            c.beginPath();
+            c.moveTo(x + r, y);
+            c.lineTo(x + w - r, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + r);
+            c.lineTo(x + w, y + h - r);
+            c.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            c.lineTo(x + r, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - r);
+            c.lineTo(x, y + r);
+            c.quadraticCurveTo(x, y, x + r, y);
+            c.closePath();
+        }
+
+        function visualizerLoop(ts) {
+            window.requestAnimationFrame(visualizerLoop);
+            if (!vCtx) return;
+
+            if (ts - lastTargetUpdate > 105) {
+                lastTargetUpdate = ts;
+                var active = !audio.paused && !audio.ended && audio.readyState > 2;
+                for (var i = 0; i < BAR_COUNT; i++) {
+                    if (active) {
+                        /* Simulated energy — mid bands slightly hotter */
+                        var curve = 0.85 + 0.15 * Math.sin(i / BAR_COUNT * Math.PI);
+                        targets[i] = (0.18 + Math.random() * 0.82) * curve;
+                    } else {
+                        targets[i] = 0.05;
+                    }
+                }
+            }
+
+            vCtx.clearRect(0, 0, vW, vH);
+
+            /* Dark background gradient */
+            var bg = vCtx.createLinearGradient(0, 0, vW, vH);
+            bg.addColorStop(0, "#0a0a0f");
+            bg.addColorStop(0.5, "#100814");
+            bg.addColorStop(1, "#0a0a1a");
+            vCtx.fillStyle = bg;
+            vCtx.fillRect(0, 0, vW, vH);
+
+            /* Retro scan lines */
+            vCtx.strokeStyle = "rgba(0, 255, 255, 0.05)";
+            vCtx.lineWidth = 0.5;
+            for (var sy = 0; sy < vH; sy += 4) {
+                vCtx.beginPath();
+                vCtx.moveTo(0, sy);
+                vCtx.lineTo(vW, sy);
+                vCtx.stroke();
+            }
+
+            var gap = 6;
+            var bw = (vW - gap * (BAR_COUNT + 1)) / BAR_COUNT;
+            if (bw <= 0) bw = 1;
+            var minBarH = 4;
+
+            for (var b = 0; b < BAR_COUNT; b++) {
+                bars[b] += (targets[b] - bars[b]) * 0.22;
+                var h = Math.max(minBarH, bars[b] * (vH - 16));
+                var x = b * (bw + gap) + gap;
+                var y = vH - h - 6;
+
+                /* Peak tracking */
+                if (bars[b] > peaks[b]) {
+                    peaks[b] = bars[b];
+                    peakDecay[b] = 0;
+                } else {
+                    peakDecay[b] += 0.004;
+                    peaks[b] = Math.max(bars[b], peaks[b] - peakDecay[b]);
+                }
+                var peakH = Math.max(minBarH, peaks[b] * (vH - 16));
+                var peakY = vH - peakH - 6;
+
+                var bandColor = (EQ_BANDS[b] && EQ_BANDS[b].color) || "#ff6b35";
+                var bandGlow = hexToRgba(bandColor, 0.55);
+
+                /* Inner fill: dark with slight band tint */
+                vCtx.fillStyle = "rgba(0,0,0,0.7)";
+                roundRectPath(vCtx, x + 1.5, y + 1.5, bw - 3, h - 3, 3);
+                vCtx.fill();
+
+                /* Colored outline */
+                vCtx.strokeStyle = bandColor;
+                vCtx.lineWidth = 2.4;
+                vCtx.shadowColor = bandGlow;
+                vCtx.shadowBlur = 10;
+                roundRectPath(vCtx, x, y, bw, h, 3);
+                vCtx.stroke();
+                vCtx.shadowBlur = 0;
+
+                /* Peak indicator */
+                if (peakH > h + 2) {
+                    vCtx.strokeStyle = hexToRgba(bandColor, 0.95);
+                    vCtx.lineWidth = 2;
+                    vCtx.beginPath();
+                    vCtx.moveTo(x, peakY);
+                    vCtx.lineTo(x + bw, peakY);
+                    vCtx.stroke();
+                }
+            }
+
+            /* Labels along the bottom */
+            vCtx.font = "700 8.5px 'Inter', sans-serif";
+            vCtx.textAlign = "center";
+            vCtx.fillStyle = "rgba(139, 148, 158, 0.6)";
+            for (var k = 0; k < BAR_COUNT; k++) {
+                var cx = k * (bw + gap) + gap + bw / 2;
+                vCtx.fillText(EQ_BANDS[k].label, cx, vH - 1);
+            }
+        }
+
+        /* ----------------------------------------------------------
+           SLEEP TIMER
+           ---------------------------------------------------------- */
+        function updateSleepInfo() {
+            if (!sleepEndsAt) {
+                mpSleepInfo.textContent = "No timer set";
+                return;
+            }
+            var remaining = Math.max(0, sleepEndsAt - Date.now());
+            var totalSec = Math.floor(remaining / 1000);
+            var mm = Math.floor(totalSec / 60);
+            var ss = totalSec % 60;
+            mpSleepInfo.textContent = "Stopping in " + mm + ":" + (ss < 10 ? "0" : "") + ss;
+        }
+
+        function setSleep(minutes) {
+            if (sleepTimeout) { clearTimeout(sleepTimeout); sleepTimeout = null; }
+            if (sleepTick) { clearInterval(sleepTick); sleepTick = null; }
+            sleepEndsAt = 0;
+
+            for (var i = 0; i < mpSleepBtns.length; i++) {
+                mpSleepBtns[i].classList.toggle(
+                    "active",
+                    String(mpSleepBtns[i].getAttribute("data-sleep")) === String(minutes)
+                );
+            }
+
+            if (!minutes) {
+                updateSleepInfo();
+                return;
+            }
+
+            sleepEndsAt = Date.now() + minutes * 60000;
+
+            sleepTimeout = setTimeout(function () {
+                try { audio.pause(); } catch (e) { /* noop */ }
+                sleepEndsAt = 0;
+                if (sleepTick) { clearInterval(sleepTick); sleepTick = null; }
+                mpSleepInfo.textContent = "Sleep timer finished — playback paused.";
+                for (var j = 0; j < mpSleepBtns.length; j++) {
+                    mpSleepBtns[j].classList.toggle(
+                        "active",
+                        mpSleepBtns[j].getAttribute("data-sleep") === "0"
+                    );
+                }
+            }, minutes * 60000);
+
+            updateSleepInfo();
+            sleepTick = setInterval(updateSleepInfo, 1000);
+        }
+
+        /* ----------------------------------------------------------
+           ELAPSED TIME
+           ---------------------------------------------------------- */
+        function fmtTime(ms) {
+            var s = Math.floor(ms / 1000);
+            var m = Math.floor(s / 60);
+            var ss = s % 60;
+            return (m < 10 ? "0" : "") + m + ":" + (ss < 10 ? "0" : "") + ss;
+        }
+
+        function startElapsed() {
+            stopElapsed();
+            elapsedStart = Date.now();
+            mpBadgeTime.textContent = "00:00";
+            elapsedTimer = setInterval(function () {
+                mpBadgeTime.textContent = fmtTime(Date.now() - elapsedStart);
+            }, 1000);
+        }
+
+        function stopElapsed() {
+            if (elapsedTimer) {
+                clearInterval(elapsedTimer);
+                elapsedTimer = null;
+            }
+        }
+
+        /* ----------------------------------------------------------
+           UI SYNC
+           ---------------------------------------------------------- */
+        function setBadge(el, text, cls) {
+            if (!el) return;
+            el.textContent = text;
+            el.className = "mp-badge" + (cls ? " " + cls : "");
+        }
+
+        function syncFavButton() {
+            if (!mpFavBtn) return;
+            var st = getStationFromSelect();
+            var on = st ? isFavorite(st.url) : false;
+            mpFavBtn.classList.toggle("on", on);
+            mpFavBtn.innerHTML = on
+                ? '<i class="fas fa-heart"></i>'
+                : '<i class="far fa-heart"></i>';
+        }
+
+        function updatePanelTrack() {
+            var st = getStationFromSelect();
+            currentMeta = st;
+
+            if (!st) {
+                mpNowName.textContent = "No station selected";
+                mpNowSub.textContent = "Pick a station to start listening";
+                setBadge(mpBadgeFmt, "—");
+                syncFavButton();
+                return;
+            }
+
+            mpNowName.textContent = st.name;
+            mpNowSub.textContent = st.formatDesc;
+            setBadge(mpBadgeFmt, prettyFormat(st.url));
+            syncFavButton();
+            highlightPlaying();
+            setMediaMetadata(st);
+        }
+
+        function highlightPlaying() {
+            var url = select ? select.value : "";
+            var items = mpList.querySelectorAll(".mp-item");
+            for (var i = 0; i < items.length; i++) {
+                items[i].classList.toggle(
+                    "playing",
+                    items[i].getAttribute("data-url") === url
+                );
+            }
+        }
+
+        function syncPlayIcons() {
+            var playing = !audio.paused && !audio.ended;
+            if (mpPlay) {
+                mpPlay.innerHTML = playing
+                    ? '<i class="fas fa-pause"></i>'
+                    : '<i class="fas fa-play"></i>';
+                mpPlay.classList.toggle("playing", playing);
+            }
+            if (mpArt) mpArt.classList.toggle("spin", playing);
+            updateMediaBadge();
+        }
+
+        /* ----------------------------------------------------------
+           PLAYLIST RENDERING
+           ---------------------------------------------------------- */
+        function renderList() {
+            if (!mpList) return;
+
+            var q = (mpListSearch.value || "").toLowerCase().trim();
+            var base;
+
+            if (listMode === "fav") {
+                base = favorites;
+            } else {
+                base = (filteredStations && filteredStations.length)
+                    ? filteredStations
+                    : (allStations || []);
+            }
+
+            var items = [];
+            for (var i = 0; i < base.length; i++) {
+                var st = base[i];
+                if (!st || !st.url) continue;
+                if (q) {
+                    var n = (st.name || "").toLowerCase();
+                    var t = (st.tags || "").toLowerCase();
+                    if (n.indexOf(q) === -1 && t.indexOf(q) === -1) continue;
+                }
+                items.push(st);
+            }
+
+            mpList.innerHTML = "";
+
+            if (!items.length) {
+                var empty = document.createElement("div");
+                empty.className = "mp-empty";
+                empty.textContent = listMode === "fav"
+                    ? "No favorites yet — tap the heart on a station."
+                    : "No stations match your filter.";
+                mpList.appendChild(empty);
+                return;
+            }
+
+            var currentUrl = select ? select.value : "";
+            var frag = document.createDocumentFragment();
+
+            for (var k = 0; k < items.length; k++) {
+                (function (st) {
+                    var row = document.createElement("div");
+                    row.className = "mp-item" + (st.url === currentUrl ? " playing" : "");
+                    row.setAttribute("data-url", st.url);
+
+                    var icon = document.createElement("div");
+                    icon.className = "mp-item-icon";
+                    icon.innerHTML = '<i class="fas fa-play"></i>';
+
+                    var body = document.createElement("div");
+                    body.className = "mp-item-body";
+
+                    var nm = document.createElement("div");
+                    nm.className = "mp-item-name";
+                    nm.textContent = st.name || "Unknown Station";
+
+                    var tg = document.createElement("div");
+                    tg.className = "mp-item-tag";
+                    tg.textContent = st.tags
+                        ? st.tags.split(",").slice(0, 2).join(", ")
+                        : prettyFormat(st.url) + " Stream";
+
+                    body.appendChild(nm);
+                    body.appendChild(tg);
+
+                    var fav = document.createElement("button");
+                    fav.className = "mp-item-fav" + (isFavorite(st.url) ? " on" : "");
+                    fav.innerHTML = isFavorite(st.url)
+                        ? '<i class="fas fa-heart"></i>'
+                        : '<i class="far fa-heart"></i>';
+                    fav.title = "Toggle favorite";
+
+                    fav.addEventListener("click", function (ev) {
+                        ev.stopPropagation();
+                        ev.preventDefault();
+                        toggleFavorite(st);
+                    });
+
+                    row.appendChild(icon);
+                    row.appendChild(body);
+                    row.appendChild(fav);
+
+                    row.addEventListener("click", function () {
+                        ensureOption(st.url, st.name);
+                        select.value = st.url;
+                        if (typeof playStation === "function") {
+                            playStation(st.url, st.name);
+                        }
+                    });
+
+                    frag.appendChild(row);
+                })(items[k]);
+            }
+
+            mpList.appendChild(frag);
+        }
+
+        /* ----------------------------------------------------------
+           AUDIO EVENT WIRING
+           ---------------------------------------------------------- */
+        audio.addEventListener("playing", function () {
+            syncPlayIcons();
+            setBadge(mpBadgeState, "Playing", "live");
+            startElapsed();
+            resumeAudioCtx();
+            updatePanelTrack();
+            setMediaPlaybackState("playing");
+            setMediaPositionState(true);
+
+            var st = getStationFromSelect();
+            if (st && notifyOn && Notification && Notification.permission === "granted") {
+                if (lastNotified !== st.url) {
+                    lastNotified = st.url;
+                    showMusicNotification({
+                        id: st.id,
+                        name: st.name,
+                        format: st.format,
+                        formatDesc: st.formatDesc
+                    });
+                }
+            }
+        });
+
+        audio.addEventListener("pause", function () {
+            syncPlayIcons();
+            if (stoppedByUser) {
+                stoppedByUser = false;
+                setBadge(mpBadgeState, "Stopped", "");
+            } else {
+                setBadge(mpBadgeState, "Paused", "");
+            }
+            stopElapsed();
+            setMediaPlaybackState("paused");
+        });
+
+        audio.addEventListener("waiting", function () {
+            setBadge(mpBadgeState, "Buffering", "busy");
+        });
+
+        audio.addEventListener("stalled", function () {
+            setBadge(mpBadgeState, "Stalled", "busy");
+        });
+
+        audio.addEventListener("error", function () {
+            setBadge(mpBadgeState, "Error", "err");
+            stopElapsed();
+            syncPlayIcons();
+            setMediaPlaybackState("none");
+        });
+
+        audio.addEventListener("loadedmetadata", function () {
+            setMediaPositionState(true);
+        });
+
+        audio.addEventListener("timeupdate", function () {
+            setMediaPositionState(false);
+        });
+
+        audio.addEventListener("volumechange", function () {
+            var v = audio.muted ? 0 : audio.volume;
+            if (mpVolume) mpVolume.value = String(audio.volume);
+            if (mpVolVal) mpVolVal.textContent = Math.round(audio.volume * 100) + "%";
+            if (mpMute) {
+                mpMute.innerHTML = (audio.muted || audio.volume === 0)
+                    ? '<i class="fas fa-volume-xmark"></i>'
+                    : (audio.volume < 0.5
+                        ? '<i class="fas fa-volume-low"></i>'
+                        : '<i class="fas fa-volume-high"></i>');
+            }
+            if (volumeSlider) volumeSlider.value = String(audio.volume);
+            if (volumeValue) volumeValue.textContent = Math.round(audio.volume * 100) + "%";
+            void v;
+        });
+
+        /* ----------------------------------------------------------
+           CONTROL WIRING
+           ---------------------------------------------------------- */
+        if (mpPlay) {
+            mpPlay.addEventListener("click", function () {
+                if (typeof playBtn !== "undefined" && playBtn) {
+                    playBtn.click();
+                }
+                resumeAudioCtx();
+            });
+        }
+
+        if (mpNext) {
+            mpNext.addEventListener("click", function () {
+                if (typeof nextBtn !== "undefined" && nextBtn) nextBtn.click();
+            });
+        }
+
+        if (mpPrev) {
+            mpPrev.addEventListener("click", function () {
+                playPreviousStation();
+            });
+        }
+
+        if (mpVolume) {
+            mpVolume.value = String(audio.volume);
+            mpVolume.addEventListener("input", function () {
+                var v = parseFloat(mpVolume.value);
+                audio.volume = v;
+                audio.muted = false;
+                if (volumeSlider) volumeSlider.value = String(v);
+                if (volumeValue) volumeValue.textContent = Math.round(v * 100) + "%";
+                if (mpVolVal) mpVolVal.textContent = Math.round(v * 100) + "%";
+            });
+        }
+
+        if (volumeSlider) {
+            volumeSlider.addEventListener("input", function () {
+                var v = parseFloat(volumeSlider.value);
+                if (mpVolume) mpVolume.value = String(v);
+                if (mpVolVal) mpVolVal.textContent = Math.round(v * 100) + "%";
+            });
+        }
+
+        if (mpMute) {
+            mpMute.addEventListener("click", function () {
+                audio.muted = !audio.muted;
+                if (mpMute) {
+                    mpMute.innerHTML = audio.muted
+                        ? '<i class="fas fa-volume-xmark"></i>'
+                        : '<i class="fas fa-volume-high"></i>';
+                }
+            });
+        }
+
+        if (mpFavBtn) {
+            mpFavBtn.addEventListener("click", function () {
+                var st = getStationFromSelect();
+                if (!st) {
+                    mpNowSub.textContent = "Select a station first";
+                    return;
+                }
+                toggleFavorite(st);
+            });
+        }
+
+        /* --- Media Session master toggle --- */
+        if (mpMediaBtn) {
+            mpMediaBtn.addEventListener("click", function () {
+                enableMediaSession(!MS.enabled);
+            });
+        }
+
+        /* --- Equalizer master toggle --- */
+        if (mpEqToggle) {
+            mpEqToggle.addEventListener("click", function () {
+                toggleEQ(!eqEnabled);
+            });
+        }
+
+        /* --- EQ reset --- */
+        if (mpEqReset) {
+            mpEqReset.addEventListener("click", function () {
+                /* Reset sliders + filters to flat */
+                currentEQValues = [0, 0, 0, 0, 0, 0, 0, 0];
+                for (var i = 0; i < eqNodes.length; i++) {
+                    if (eqNodes[i] && eqNodes[i].gain) eqNodes[i].gain.value = 0;
+                }
+                refreshEQSliders();
+                markPresetActive("flat");
+                saveEQ();
+                flashSub("EQ reset to Flat");
+            });
+        }
+
+        /* --- EQ preset buttons --- */
+        if (mpEqPresets) {
+            var presetBtns = mpEqPresets.querySelectorAll(".mp-eq-preset-btn");
+            for (var pi = 0; pi < presetBtns.length; pi++) {
+                (function (btn) {
+                    btn.addEventListener("click", function () {
+                        if (!eqEnabled) toggleEQ(true);
+                        applyPreset(btn.getAttribute("data-preset"));
+                    });
+                })(presetBtns[pi]);
+            }
+        }
+
+        /* --- Sleep timer --- */
+        for (var s = 0; s < mpSleepBtns.length; s++) {
+            (function (btn) {
+                btn.addEventListener("click", function () {
+                    setSleep(parseInt(btn.getAttribute("data-sleep"), 10) || 0);
+                });
+            })(mpSleepBtns[s]);
+        }
+
+        /* --- Playlist tabs --- */
+        if (mpAllTab) {
+            mpAllTab.addEventListener("click", function () {
+                listMode = "all";
+                mpAllTab.classList.add("active");
+                mpFavTab.classList.remove("active");
+                mpListTitle.textContent = "All Stations";
+                renderList();
+            });
+        }
+
+        if (mpFavTab) {
+            mpFavTab.addEventListener("click", function () {
+                listMode = "fav";
+                mpFavTab.classList.add("active");
+                mpAllTab.classList.remove("active");
+                mpListTitle.textContent = "Favorites";
+                renderList();
+            });
+        }
+
+        if (mpNotifyBtn) {
+            mpNotifyBtn.addEventListener("click", requestNotifyPermission);
+        }
+
+        if (mpListSearch) {
+            mpListSearch.addEventListener("input", renderList);
+        }
+
+        /* ----------------------------------------------------------
+           KEYBOARD SHORTCUTS (mirrors media keys)
+           ---------------------------------------------------------- */
+        function isTypingTarget(el) {
+            if (!el || el.nodeType !== 1) return false;
+            if (el.isContentEditable) return true;
+            var t = el.tagName;
+            return t === "INPUT" || t === "TEXTAREA" || t === "SELECT";
+        }
+
+        function mediaKeyShortcuts(ev) {
+            if (!MS.enabled) return;
+            if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+
+            var t = ev.target;
+            if (isTypingTarget(t)) return;
+            if (t && (t.tagName === "BUTTON" || t.tagName === "A")) return;
+
+            var key = ev.key || "";
+
+            if (key === " " || key === "Spacebar" || ev.code === "Space") {
+                ev.preventDefault();
+                var playing = !audio.paused && !audio.ended;
+                if (playing) mediaPause(); else mediaPlay();
+                return;
+            }
+            if (key === "ArrowRight") { ev.preventDefault(); mediaNext(); return; }
+            if (key === "ArrowLeft") { ev.preventDefault(); mediaPrevious(); return; }
+            if (key === "n" || key === "N") { mediaNext(); return; }
+            if (key === "p" || key === "P") { mediaPrevious(); return; }
+            if (key === "m" || key === "M") { if (mpMute) mpMute.click(); return; }
+        }
+
+        document.addEventListener("keydown", mediaKeyShortcuts, false);
+
+        /* ----------------------------------------------------------
+           SELECT SYNC
+           ---------------------------------------------------------- */
+        if (window.MutationObserver && select) {
+            var mo = new MutationObserver(function () {
+                renderList();
+                updatePanelTrack();
+            });
+            mo.observe(select, { childList: true, subtree: true });
+        }
+
+        if (select) {
+            select.addEventListener("change", function () {
+                updatePanelTrack();
+                highlightPlaying();
+            });
+        }
+
+        /* ----------------------------------------------------------
+           CANVAS RESIZE
+           ---------------------------------------------------------- */
+        var resizeTimer = null;
+        window.addEventListener("resize", function () {
+            if (resizeTimer) clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(sizeCanvas, 120);
+        });
+
+        /* ----------------------------------------------------------
+           INIT
+           ---------------------------------------------------------- */
+        function initPanel() {
+            loadFavorites();
+            loadEQ();
+            initBars();
+            sizeCanvas();
+            window.requestAnimationFrame(visualizerLoop);
+
+            /* Build EQ slider UI from loaded values */
+            buildEQSliderUI();
+
+            /* Reflect current EQ state in the UI */
+            if (mpEqToggle) mpEqToggle.classList.toggle("active", eqEnabled);
+            if (mpEqPanel) mpEqPanel.hidden = !eqEnabled;
+
+            var presetName = getActivePreset();
+            if (!presetName) {
+                /* Try to match loaded values to a preset */
+                for (var pn in EQ_PRESETS) {
+                    var arr = EQ_PRESETS[pn];
+                    var match = true;
+                    for (var vi = 0; vi < 8; vi++) {
+                        if (Math.abs((arr[vi] || 0) - (currentEQValues[vi] || 0)) > 0.25) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) { presetName = pn; break; }
+                }
+            }
+            markPresetActive(presetName || null);
+
+            renderList();
+            updatePanelTrack();
+            syncPlayIcons();
+            syncFavButton();
+            setBadge(mpBadgeState, "Idle", "");
+            setBadge(mpBadgeFmt, "—");
+            mpBadgeTime.textContent = "00:00";
+            updateEQBadge();
+
+            if (mpVolume) mpVolume.value = String(audio.volume);
+            if (mpVolVal) mpVolVal.textContent = Math.round(audio.volume * 100) + "%";
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                notifyOn = true;
+                mpNotifyBtn.classList.add("active");
+            }
+
+            /* Boot the Media Session layer */
+            if (MS.supported) {
+                MS.enabled = true;
+                if (mpMediaBtn) mpMediaBtn.classList.add("active");
+                registerMediaHandlers();
+                setMediaMetadata(getStationFromSelect());
+                setMediaPlaybackState(audio.paused ? "paused" : "playing");
+            } else {
+                MS.enabled = false;
+                if (mpMediaBtn) {
+                    mpMediaBtn.classList.remove("active");
+                    mpMediaBtn.title = "Media Session API not supported in this browser";
+                }
+            }
+            updateMediaBadge();
+
+            /* Re-render playlist on radio-engine refreshes */
+            setTimeout(renderList, 1500);
+            setTimeout(renderList, 4000);
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", initPanel);
+        } else {
+            initPanel();
+        }
+
+    })();
+    </script>
+
+    <!-- ============================================================
+         SYSTEM PROTECTION LAYER (ACP)
+         ============================================================ -->
+    <script>
+    (function () {
+      "use strict";
+
+      /* ==========================================================
+         CONFIGURATION
+         ========================================================== */
+      var ACP = {
+        /* --- interaction shields --- */
+        rightClick       : true,
+        selection        : true,
+        copyCutPaste     : true,
+        dragDrop         : true,
+        selectAll        : true,
+        findOnPage       : false,
+        savePage         : true,
+        printKeys        : true,
+        viewSource       : true,
+        devtoolsKeys     : true,
+
+        /* --- advanced client-side security --- */
+        frameBust        : true,
+        iframeBlock      : true,
+        watermark        : true,
+        watermarkText    : "",                 // "" = auto host + date
+        clipboardPoison  : true,
+        printScreenTrap  : true,
+        consoleTrap      : true,
+        devtoolsDetect   : true,
+        debuggerTrap     : false,
+        lockOnDevtools   : true,
+        blurOnBlur       : true,
+        contextPoison    : true,
+        mutationGuard    : true,
+        disableImgMenu   : true,
+        killDrop         : true,
+
+        /* --- UX / look --- */
+        keepFormsUsable  : true,
+        showToast        : true,
+        toastText        : "This content is protected.",
+
+        /* --- Font Awesome icon classes (fa-solid) --- */
+        iconToast        : "fa-shield-halved",
+        iconGuard        : "fa-lock",
+        iconWatermark    : "fa-shield-halved",
+        iconPill         : "fa-circle-exclamation",
+
+        /* --- Console banner --- */
+        consoleMessage : "%c⛔ STOP! This content is protected. Unauthorized copying is prohibited.",
+        consoleStyle   : "color:#ff4d6d; font-size:20px; font-weight:bold; text-shadow:0 0 8px rgba(255,77,109,.6);",
+
+        /* --- Asset loader --- */
+        fontAwesomeURL : "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      };
+      /* ========================================================== */
 
 
-  /* ---------------- helpers ---------------- */
-  var doc = document, win = window;
-  var toastEl, toastIcon, toastText, guardEl, wmEl;
-  var toastTimer, lastToast = 0;
+      /* ---------------- helpers ---------------- */
+      var doc = document, win = window;
+      var toastEl, toastIcon, toastText, guardEl, wmEl;
+      var toastTimer, lastToast = 0;
 
-  function on(el, type, fn, cap){
-    if (!el) return;
-    if (el.addEventListener) el.addEventListener(type, fn, !!cap);
-    else if (el.attachEvent) el.attachEvent("on" + type, fn);
-  }
-
-  function isEditable(el){
-    if (!el || el.nodeType !== 1) return false;
-    if (el.isContentEditable) return true;
-    var t = el.tagName;
-    return t === "INPUT" || t === "TEXTAREA" || t === "SELECT";
-  }
-
-  function block(e){
-    if (!e) return false;
-    if (e.preventDefault) e.preventDefault();
-    if (e.stopPropagation) e.stopPropagation();
-    e.returnValue = false;
-    return false;
-  }
-
-  function fa(icon){
-    var i = doc.createElement("i");
-    i.className = "fa-solid " + icon;
-    i.setAttribute("aria-hidden", "true");
-    return i;
-  }
-
-  function toast(msg){
-    if (!ACP.showToast || !toastEl) return;
-    var now = Date.now();
-    if (now - lastToast < 650) return;
-    lastToast = now;
-    toastText.textContent = msg;
-    toastEl.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){
-      toastEl.classList.remove("show");
-    }, 1800);
-  }
-
-
-  /* ==========================================================
-     0. ASSET + STYLE INJECTION
-     ========================================================== */
-  function injectCSS(css){
-    var s = doc.createElement("style");
-    s.setAttribute("type", "text/css");
-    s.setAttribute("data-acp", "styles");
-    if (s.styleSheet) s.styleSheet.cssText = css;
-    else s.appendChild(doc.createTextNode(css));
-    (doc.head || doc.documentElement).appendChild(s);
-  }
-
-  function loadFontAwesome(){
-    if (!ACP.fontAwesomeURL) return;
-    var l = doc.createElement("link");
-    l.rel = "stylesheet";
-    l.href = ACP.fontAwesomeURL;
-    l.crossOrigin = "anonymous";
-    l.referrerPolicy = "no-referrer";
-    (doc.head || doc.documentElement).appendChild(l);
-  }
-
-  function injectWidgetStyles(){
-    injectCSS([
-      '.acp-toast{',
-        'position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);',
-        'display:flex;align-items:center;gap:10px;max-width:min(92vw,470px);',
-        'padding:12px 18px;border-radius:999px;',
-        'background:rgba(17,19,26,.95);color:#fff;',
-        'font:600 14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;',
-        'border:1px solid rgba(255,77,109,.45);',
-        'box-shadow:0 14px 38px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04) inset;',
-        'opacity:0;pointer-events:none;z-index:2147483000;',
-        'transition:opacity .25s ease,transform .25s ease;',
-        '-webkit-user-select:none;user-select:none;',
-      '}',
-      '.acp-toast.show{opacity:1;transform:translate(-50%,0)}',
-      '.acp-toast-icon{display:inline-flex;align-items:center;color:#ff4d6d;font-size:16px;line-height:1}',
-      '.acp-toast-text{display:inline-block}',
-
-      '.acp-guard{',
-        'position:fixed;top:0;left:0;right:0;bottom:0;',
-        'display:none;align-items:center;justify-content:center;padding:24px;',
-        'background:rgba(8,10,16,.86);text-align:center;',
-        '-webkit-backdrop-filter:blur(16px) saturate(120%);',
-        'backdrop-filter:blur(16px) saturate(120%);',
-        'z-index:2147483600;',
-      '}',
-      'body.acp-locked .acp-guard{display:flex}',
-      'body.acp-locked{overflow:hidden}',
-      '.acp-guard-box{',
-        'max-width:440px;padding:34px 30px 30px;border-radius:20px;',
-        'background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));',
-        'border:1px solid rgba(255,255,255,.12);',
-        'box-shadow:0 40px 90px rgba(0,0,0,.6);',
-        'font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#e7ebf3;',
-      '}',
-      '.acp-guard-icon{',
-        'width:64px;height:64px;margin:0 auto 18px;border-radius:50%;',
-        'display:flex;align-items:center;justify-content:center;font-size:26px;color:#ff4d6d;',
-        'background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.35);',
-      '}',
-      '.acp-guard-title{margin:0 0 8px;font-size:20px;letter-spacing:-.01em}',
-      '.acp-guard-sub{margin:0 0 18px;color:#9aa3b2;font-size:14px;line-height:1.6}',
-      '.acp-guard-pill{',
-        'display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;',
-        'font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;',
-        'color:#ff4d6d;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);',
-      '}',
-
-      '#acp-watermark{',
-        'position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147482000;',
-        'pointer-events:none;overflow:hidden;opacity:.10;',
-        'display:flex;flex-wrap:wrap;align-content:flex-start;',
-        'gap:44px 34px;padding:34px;',
-        'font:700 12.5px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;',
-        'color:#ffffff;mix-blend-mode:overlay;',
-        '-webkit-user-select:none;user-select:none;',
-      '}',
-      '#acp-watermark span{',
-        'display:inline-flex;align-items:center;gap:7px;white-space:nowrap;',
-        'transform:rotate(-24deg);',
-        '-webkit-user-drag:none;',
-      '}',
-      '#acp-watermark i{font-size:11px}',
-
-      'body.acp-blur > *:not(.acp-toast):not(.acp-guard):not(#acp-watermark){',
-        'filter:blur(9px);transition:filter .22s ease;',
-        '-webkit-user-select:none;user-select:none;',
-      '}',
-
-      '@media print{',
-        '.acp-toast,.acp-guard{display:none !important}',
-        '#acp-watermark{opacity:.2}',
-      '}',
-
-      '@media (prefers-reduced-motion: reduce){',
-        '.acp-toast{transition:none}',
-      '}'
-    ].join(""));
-  }
-
-
-  /* ==========================================================
-     1. ANTI-IFRAME / FRAME BUST
-     ========================================================== */
-  function antiFrame(){
-    try{
-      if (win.top !== win.self){
-        if (ACP.frameBust) win.top.location = win.self.location.href;
-        if (ACP.iframeBlock) doc.documentElement.style.display = "none";
+      function on(el, type, fn, cap){
+        if (!el) return;
+        if (el.addEventListener) el.addEventListener(type, fn, !!cap);
+        else if (el.attachEvent) el.attachEvent("on" + type, fn);
       }
-    }catch(e){
-      if (ACP.iframeBlock) doc.documentElement.style.display = "none";
-    }
-  }
+
+      function isEditable(el){
+        if (!el || el.nodeType !== 1) return false;
+        if (el.isContentEditable) return true;
+        var t = el.tagName;
+        return t === "INPUT" || t === "TEXTAREA" || t === "SELECT";
+      }
+
+      function block(e){
+        if (!e) return false;
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        e.returnValue = false;
+        return false;
+      }
+
+      function fa(icon){
+        var i = doc.createElement("i");
+        i.className = "fa-solid " + icon;
+        i.setAttribute("aria-hidden", "true");
+        return i;
+      }
+
+      function toast(msg){
+        if (!ACP.showToast || !toastEl) return;
+        var now = Date.now();
+        if (now - lastToast < 650) return;
+        lastToast = now;
+        toastText.textContent = msg;
+        toastEl.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function(){
+          toastEl.classList.remove("show");
+        }, 1800);
+      }
 
 
-  /* ==========================================================
-     2. UI — TOAST + LOCK SCREEN
-     ========================================================== */
-  function buildUI(){
-    if (!doc.body) return;
+      /* ==========================================================
+         0. ASSET + STYLE INJECTION
+         ========================================================== */
+      function injectCSS(css){
+        var s = doc.createElement("style");
+        s.setAttribute("type", "text/css");
+        s.setAttribute("data-acp", "styles");
+        if (s.styleSheet) s.styleSheet.cssText = css;
+        else s.appendChild(doc.createTextNode(css));
+        (doc.head || doc.documentElement).appendChild(s);
+      }
 
-    toastEl = doc.createElement("div");
-    toastEl.className = "acp-toast";
-    toastEl.setAttribute("role", "status");
-    toastEl.setAttribute("aria-live", "polite");
+      function loadFontAwesome(){
+        if (!ACP.fontAwesomeURL) return;
+        var l = doc.createElement("link");
+        l.rel = "stylesheet";
+        l.href = ACP.fontAwesomeURL;
+        l.crossOrigin = "anonymous";
+        l.referrerPolicy = "no-referrer";
+        (doc.head || doc.documentElement).appendChild(l);
+      }
 
-    toastIcon = doc.createElement("span");
-    toastIcon.className = "acp-toast-icon";
-    toastIcon.appendChild(fa(ACP.iconToast));
+      function injectWidgetStyles(){
+        injectCSS([
+          '.acp-toast{',
+            'position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);',
+            'display:flex;align-items:center;gap:10px;max-width:min(92vw,470px);',
+            'padding:12px 18px;border-radius:999px;',
+            'background:rgba(17,19,26,.95);color:#fff;',
+            'font:600 14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;',
+            'border:1px solid rgba(255,77,109,.45);',
+            'box-shadow:0 14px 38px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.04) inset;',
+            'opacity:0;pointer-events:none;z-index:2147483000;',
+            'transition:opacity .25s ease,transform .25s ease;',
+            '-webkit-user-select:none;user-select:none;',
+          '}',
+          '.acp-toast.show{opacity:1;transform:translate(-50%,0)}',
+          '.acp-toast-icon{display:inline-flex;align-items:center;color:#ff4d6d;font-size:16px;line-height:1}',
+          '.acp-toast-text{display:inline-block}',
 
-    toastText = doc.createElement("span");
-    toastText.className = "acp-toast-text";
-    toastText.textContent = ACP.toastText;
+          '.acp-guard{',
+            'position:fixed;top:0;left:0;right:0;bottom:0;',
+            'display:none;align-items:center;justify-content:center;padding:24px;',
+            'background:rgba(8,10,16,.86);text-align:center;',
+            '-webkit-backdrop-filter:blur(16px) saturate(120%);',
+            'backdrop-filter:blur(16px) saturate(120%);',
+            'z-index:2147483600;',
+          '}',
+          'body.acp-locked .acp-guard{display:flex}',
+          'body.acp-locked{overflow:hidden}',
+          '.acp-guard-box{',
+            'max-width:440px;padding:34px 30px 30px;border-radius:20px;',
+            'background:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.02));',
+            'border:1px solid rgba(255,255,255,.12);',
+            'box-shadow:0 40px 90px rgba(0,0,0,.6);',
+            'font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#e7ebf3;',
+          '}',
+          '.acp-guard-icon{',
+            'width:64px;height:64px;margin:0 auto 18px;border-radius:50%;',
+            'display:flex;align-items:center;justify-content:center;font-size:26px;color:#ff4d6d;',
+            'background:rgba(255,77,109,.12);border:1px solid rgba(255,77,109,.35);',
+          '}',
+          '.acp-guard-title{margin:0 0 8px;font-size:20px;letter-spacing:-.01em}',
+          '.acp-guard-sub{margin:0 0 18px;color:#9aa3b2;font-size:14px;line-height:1.6}',
+          '.acp-guard-pill{',
+            'display:inline-flex;align-items:center;gap:8px;padding:7px 14px;border-radius:999px;',
+            'font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;',
+            'color:#ff4d6d;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);',
+          '}',
 
-    toastEl.appendChild(toastIcon);
-    toastEl.appendChild(toastText);
-    doc.body.appendChild(toastEl);
+          '#acp-watermark{',
+            'position:fixed;top:0;left:0;right:0;bottom:0;z-index:2147482000;',
+            'pointer-events:none;overflow:hidden;opacity:.10;',
+            'display:flex;flex-wrap:wrap;align-content:flex-start;',
+            'gap:44px 34px;padding:34px;',
+            'font:700 12.5px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;',
+            'color:#ffffff;mix-blend-mode:overlay;',
+            '-webkit-user-select:none;user-select:none;',
+          '}',
+          '#acp-watermark span{',
+            'display:inline-flex;align-items:center;gap:7px;white-space:nowrap;',
+            'transform:rotate(-24deg);',
+            '-webkit-user-drag:none;',
+          '}',
+          '#acp-watermark i{font-size:11px}',
 
-    if (ACP.devtoolsDetect && ACP.lockOnDevtools){
-      guardEl = doc.createElement("div");
-      guardEl.className = "acp-guard";
-      guardEl.setAttribute("role", "alertdialog");
-      guardEl.setAttribute("aria-modal", "true");
+          'body.acp-blur > *:not(.acp-toast):not(.acp-guard):not(#acp-watermark){',
+            'filter:blur(9px);transition:filter .22s ease;',
+            '-webkit-user-select:none;user-select:none;',
+          '}',
 
-      var box = doc.createElement("div");
-      box.className = "acp-guard-box";
+          '@media print{',
+            '.acp-toast,.acp-guard{display:none !important}',
+            '#acp-watermark{opacity:.2}',
+          '}',
 
-      var ic = doc.createElement("div");
-      ic.className = "acp-guard-icon";
-      ic.appendChild(fa(ACP.iconGuard));
-
-      var title = doc.createElement("h2");
-      title.className = "acp-guard-title";
-      title.textContent = "Developer Tools Detected";
-
-      var sub = doc.createElement("p");
-      sub.className = "acp-guard-sub";
-      sub.textContent = "Please close DevTools to continue reading this page.";
-
-      var pill = doc.createElement("div");
-      pill.className = "acp-guard-pill";
-      pill.appendChild(fa(ACP.iconPill));
-      var pillTxt = doc.createElement("span");
-      pillTxt.textContent = "Content Protected";
-      pill.appendChild(pillTxt);
-
-      box.appendChild(ic);
-      box.appendChild(title);
-      box.appendChild(sub);
-      box.appendChild(pill);
-      guardEl.appendChild(box);
-      doc.body.appendChild(guardEl);
-    }
-  }
-
-
-  /* ==========================================================
-     3. WATERMARK
-     ========================================================== */
-  function buildWatermark(){
-    if (!ACP.watermark || !doc.body || wmEl) return;
-
-    var text = ACP.watermarkText;
-    if (!text){
-      var d = new Date();
-      var stamp = d.getFullYear() + "-" +
-                  ("0" + (d.getMonth() + 1)).slice(-2) + "-" +
-                  ("0" + d.getDate()).slice(-2);
-      text = (win.location.hostname || "protected") + " • " + stamp;
-    }
-
-    wmEl = doc.createElement("div");
-    wmEl.id = "acp-watermark";
-    wmEl.setAttribute("aria-hidden", "true");
-
-    var frag = doc.createDocumentFragment();
-    for (var i = 0; i < 60; i++){
-      var s = doc.createElement("span");
-      s.appendChild(fa(ACP.iconWatermark));
-      s.appendChild(doc.createTextNode(text));
-      frag.appendChild(s);
-    }
-    wmEl.appendChild(frag);
-    doc.body.appendChild(wmEl);
-  }
+          '@media (prefers-reduced-motion: reduce){',
+            '.acp-toast{transition:none}',
+          '}'
+        ].join(""));
+      }
 
 
-  /* ==========================================================
-     4. DRAG / DROP + MUTATION GUARD
-     ========================================================== */
-  function hardenImages(root){
-    if (!ACP.dragDrop) return;
-    var imgs = (root || doc).getElementsByTagName("img");
-    for (var i = 0; i < imgs.length; i++){
-      imgs[i].setAttribute("draggable", "false");
-      imgs[i].setAttribute("oncontextmenu", "return false;");
-    }
-  }
-
-  function mutationGuard(){
-    if (!ACP.mutationGuard || !win.MutationObserver || !doc.body) return;
-    new MutationObserver(function(muts){
-      for (var m = 0; m < muts.length; m++){
-        var nodes = muts[m].addedNodes;
-        for (var n = 0; n < nodes.length; n++){
-          var node = nodes[n];
-          if (node.nodeType !== 1) continue;
-          if (node.tagName === "IMG") node.setAttribute("draggable", "false");
-          if (node.getElementsByTagName) hardenImages(node);
+      /* ==========================================================
+         1. ANTI-IFRAME / FRAME BUST
+         ========================================================== */
+      function antiFrame(){
+        try{
+          if (win.top !== win.self){
+            if (ACP.frameBust) win.top.location = win.self.location.href;
+            if (ACP.iframeBlock) doc.documentElement.style.display = "none";
+          }
+        }catch(e){
+          if (ACP.iframeBlock) doc.documentElement.style.display = "none";
         }
       }
-    }).observe(doc.body, { childList: true, subtree: true });
-  }
 
 
-  /* ==========================================================
-     5. CONSOLE TRAP
-     ========================================================== */
-  function consoleTrap(){
-    if (!ACP.consoleTrap || !win.console) return;
-    try{
-      win.console.log(ACP.consoleMessage, ACP.consoleStyle);
-      win.console.log(
-        "%cUnauthorized copying, scraping, or redistribution is strictly prohibited.",
-        "color:#9aa3b2;font-size:12px;"
-      );
-    }catch(e){}
+      /* ==========================================================
+         2. UI — TOAST + LOCK SCREEN
+         ========================================================== */
+      function buildUI(){
+        if (!doc.body) return;
 
-    var noop = function(){};
-    var methods = ["log","info","warn","error","debug","trace","dir","table","clear"];
-    for (var i = 0; i < methods.length; i++){
-      try{ win.console[methods[i]] = noop; }catch(e){}
-    }
-    setInterval(function(){
-      try{ if (win.console && win.console.clear) win.console.clear(); }catch(e){}
-    }, 2500);
-  }
+        toastEl = doc.createElement("div");
+        toastEl.className = "acp-toast";
+        toastEl.setAttribute("role", "status");
+        toastEl.setAttribute("aria-live", "polite");
 
+        toastIcon = doc.createElement("span");
+        toastIcon.className = "acp-toast-icon";
+        toastIcon.appendChild(fa(ACP.iconToast));
 
-  /* ==========================================================
-     6. DEBUGGER TRAP (opt-in)
-     ========================================================== */
-  function debuggerTrap(){
-    if (!ACP.debuggerTrap) return;
-    (function loop(){
-      var t0 = (win.performance && performance.now) ? performance.now() : Date.now();
-      // eslint-disable-next-line no-debugger
-      debugger;
-      var t1 = (win.performance && performance.now) ? performance.now() : Date.now();
-      if (t1 - t0 > 120) { /* DevTools likely paused execution */ }
-      setTimeout(loop, 200);
-    })();
-  }
+        toastText = doc.createElement("span");
+        toastText.className = "acp-toast-text";
+        toastText.textContent = ACP.toastText;
 
+        toastEl.appendChild(toastIcon);
+        toastEl.appendChild(toastText);
+        doc.body.appendChild(toastEl);
 
-  /* ==========================================================
-     7. CLIPBOARD POISON + PRINTSCREEN TRAP
-     ========================================================== */
-  function clipboardPoison(e){
-    if (!ACP.clipboardPoison) return false;
-    try{
-      var msg = "⛔ Content protected — copying is not permitted. " +
-                (win.location.hostname || "");
-      if (e && e.clipboardData && e.clipboardData.setData){
-        e.clipboardData.setData("text/plain", msg);
-      } else if (win.clipboardData && win.clipboardData.setData){
-        win.clipboardData.setData("text", msg);
+        if (ACP.devtoolsDetect && ACP.lockOnDevtools){
+          guardEl = doc.createElement("div");
+          guardEl.className = "acp-guard";
+          guardEl.setAttribute("role", "alertdialog");
+          guardEl.setAttribute("aria-modal", "true");
+
+          var box = doc.createElement("div");
+          box.className = "acp-guard-box";
+
+          var ic = doc.createElement("div");
+          ic.className = "acp-guard-icon";
+          ic.appendChild(fa(ACP.iconGuard));
+
+          var title = doc.createElement("h2");
+          title.className = "acp-guard-title";
+          title.textContent = "Developer Tools Detected";
+
+          var sub = doc.createElement("p");
+          sub.className = "acp-guard-sub";
+          sub.textContent = "Please close DevTools to continue reading this page.";
+
+          var pill = doc.createElement("div");
+          pill.className = "acp-guard-pill";
+          pill.appendChild(fa(ACP.iconPill));
+          var pillTxt = doc.createElement("span");
+          pillTxt.textContent = "Content Protected";
+          pill.appendChild(pillTxt);
+
+          box.appendChild(ic);
+          box.appendChild(title);
+          box.appendChild(sub);
+          box.appendChild(pill);
+          guardEl.appendChild(box);
+          doc.body.appendChild(guardEl);
+        }
       }
-    }catch(err){}
-    toast(ACP.toastText);
-    return true;
-  }
 
-  function printScreenTrap(){
-    if (!ACP.printScreenTrap) return;
-    on(win, "keyup", function(e){
-      var k = (e.key || "").toLowerCase();
-      if (k === "printscreen" || e.keyCode === 44){
+
+      /* ==========================================================
+         3. WATERMARK
+         ========================================================== */
+      function buildWatermark(){
+        if (!ACP.watermark || !doc.body || wmEl) return;
+
+        var text = ACP.watermarkText;
+        if (!text){
+          var d = new Date();
+          var stamp = d.getFullYear() + "-" +
+                      ("0" + (d.getMonth() + 1)).slice(-2) + "-" +
+                      ("0" + d.getDate()).slice(-2);
+          text = (win.location.hostname || "protected") + " • " + stamp;
+        }
+
+        wmEl = doc.createElement("div");
+        wmEl.id = "acp-watermark";
+        wmEl.setAttribute("aria-hidden", "true");
+
+        var frag = doc.createDocumentFragment();
+        for (var i = 0; i < 60; i++){
+          var s = doc.createElement("span");
+          s.appendChild(fa(ACP.iconWatermark));
+          s.appendChild(doc.createTextNode(text));
+          frag.appendChild(s);
+        }
+        wmEl.appendChild(frag);
+        doc.body.appendChild(wmEl);
+      }
+
+
+      /* ==========================================================
+         4. DRAG / DROP + MUTATION GUARD
+         ========================================================== */
+      function hardenImages(root){
+        if (!ACP.dragDrop) return;
+        var imgs = (root || doc).getElementsByTagName("img");
+        for (var i = 0; i < imgs.length; i++){
+          imgs[i].setAttribute("draggable", "false");
+          imgs[i].setAttribute("oncontextmenu", "return false;");
+        }
+      }
+
+      function mutationGuard(){
+        if (!ACP.mutationGuard || !win.MutationObserver || !doc.body) return;
+        new MutationObserver(function(muts){
+          for (var m = 0; m < muts.length; m++){
+            var nodes = muts[m].addedNodes;
+            for (var n = 0; n < nodes.length; n++){
+              var node = nodes[n];
+              if (node.nodeType !== 1) continue;
+              if (node.tagName === "IMG") node.setAttribute("draggable", "false");
+              if (node.getElementsByTagName) hardenImages(node);
+            }
+          }
+        }).observe(doc.body, { childList: true, subtree: true });
+      }
+
+
+      /* ==========================================================
+         5. CONSOLE TRAP
+         ========================================================== */
+      function consoleTrap(){
+        if (!ACP.consoleTrap || !win.console) return;
         try{
-          if (navigator.clipboard && navigator.clipboard.writeText){
-            navigator.clipboard.writeText("⛔ Screenshot content is protected.");
+          win.console.log(ACP.consoleMessage, ACP.consoleStyle);
+          win.console.log(
+            "%cUnauthorized copying, scraping, or redistribution is strictly prohibited.",
+            "color:#9aa3b2;font-size:12px;"
+          );
+        }catch(e){}
+
+        var noop = function(){};
+        var methods = ["log","info","warn","error","debug","trace","dir","table","clear"];
+        for (var i = 0; i < methods.length; i++){
+          try{ win.console[methods[i]] = noop; }catch(e){}
+        }
+        setInterval(function(){
+          try{ if (win.console && win.console.clear) win.console.clear(); }catch(e){}
+        }, 2500);
+      }
+
+
+      /* ==========================================================
+         6. DEBUGGER TRAP (opt-in)
+         ========================================================== */
+      function debuggerTrap(){
+        if (!ACP.debuggerTrap) return;
+        (function loop(){
+          var t0 = (win.performance && performance.now) ? performance.now() : Date.now();
+          // eslint-disable-next-line no-debugger
+          debugger;
+          var t1 = (win.performance && performance.now) ? performance.now() : Date.now();
+          if (t1 - t0 > 120) { /* DevTools likely paused execution */ }
+          setTimeout(loop, 200);
+        })();
+      }
+
+
+      /* ==========================================================
+         7. CLIPBOARD POISON + PRINTSCREEN TRAP
+         ========================================================== */
+      function clipboardPoison(e){
+        if (!ACP.clipboardPoison) return false;
+        try{
+          var msg = "⛔ Content protected — copying is not permitted. " +
+                    (win.location.hostname || "");
+          if (e && e.clipboardData && e.clipboardData.setData){
+            e.clipboardData.setData("text/plain", msg);
+          } else if (win.clipboardData && win.clipboardData.setData){
+            win.clipboardData.setData("text", msg);
           }
         }catch(err){}
-        toast("Screenshot blocked by protection policy.");
-      }
-    }, true);
-  }
-
-
-  /* ==========================================================
-     8. FOCUS LOSS BLUR
-     ========================================================== */
-  function focusBlur(){
-    if (!ACP.blurOnBlur) return;
-    function apply(){ if (doc.body) doc.body.classList.add("acp-blur"); }
-    function remove(){ if (doc.body) doc.body.classList.remove("acp-blur"); }
-    on(win, "blur", apply);
-    on(win, "focus", remove);
-    on(doc, "visibilitychange", function(){
-      if (doc.hidden) apply(); else remove();
-    });
-  }
-
-
-  /* ==========================================================
-     9. KEYBOARD SHIELD
-     ========================================================== */
-  function keyboardShield(){
-    on(doc, "keydown", function(e){
-      var k     = (e.key || "").toUpperCase();
-      var code  = e.keyCode || e.which || 0;
-      var ctrl  = e.ctrlKey || e.metaKey;
-      var shift = e.shiftKey;
-      var alt   = e.altKey;
-      var editable = ACP.keepFormsUsable && isEditable(e.target);
-
-      if (ACP.printScreenTrap && (k === "PRINTSCREEN" || code === 44)){
-        toast("Screenshot key is blocked.");
-        return block(e);
-      }
-      if (ACP.devtoolsKeys && (code === 123 || k === "F12")) return block(e);
-      if (ACP.devtoolsKeys && ctrl && shift &&
-          (k === "I" || k === "J" || k === "C" || k === "K" || k === "E")) return block(e);
-      if (ACP.devtoolsKeys && ctrl && alt &&
-          (k === "I" || k === "J" || k === "C" || k === "U")) return block(e);
-      if (ACP.viewSource && ctrl && !shift && k === "U") return block(e);
-      if (ACP.savePage   && ctrl && k === "S") return block(e);
-      if (ACP.printKeys  && ctrl && k === "P") return block(e);
-      if (ACP.findOnPage && ctrl && (k === "F" || k === "G")) return block(e);
-
-      if (editable) return true;
-
-      if (ACP.selectAll && ctrl && k === "A") return block(e);
-      if (ACP.copyCutPaste && ctrl && (k === "C" || k === "X" || k === "V")){
         toast(ACP.toastText);
-        return block(e);
+        return true;
       }
-      return true;
-    }, true);
-  }
+
+      function printScreenTrap(){
+        if (!ACP.printScreenTrap) return;
+        on(win, "keyup", function(e){
+          var k = (e.key || "").toLowerCase();
+          if (k === "printscreen" || e.keyCode === 44){
+            try{
+              if (navigator.clipboard && navigator.clipboard.writeText){
+                navigator.clipboard.writeText("⛔ Screenshot content is protected.");
+              }
+            }catch(err){}
+            toast("Screenshot blocked by protection policy.");
+          }
+        }, true);
+      }
 
 
-  /* ==========================================================
-     10. POINTER / CONTEXT / SELECTION / DRAG
-     ========================================================== */
-  function pointerShield(){
+      /* ==========================================================
+         8. FOCUS LOSS BLUR
+         ========================================================== */
+      function focusBlur(){
+        if (!ACP.blurOnBlur) return;
+        function apply(){ if (doc.body) doc.body.classList.add("acp-blur"); }
+        function remove(){ if (doc.body) doc.body.classList.remove("acp-blur"); }
+        on(win, "blur", apply);
+        on(win, "focus", remove);
+        on(doc, "visibilitychange", function(){
+          if (doc.hidden) apply(); else remove();
+        });
+      }
 
-    if (ACP.rightClick){
-      on(doc, "contextmenu", function(e){
-        if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-        toast(ACP.toastText);
-        return block(e);
-      }, true);
-    }
 
-    if (ACP.selection){
-      on(doc, "mousedown", function(e){
-        if (e.detail > 1){
-          if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-          return block(e);
+      /* ==========================================================
+         9. KEYBOARD SHIELD
+         ========================================================== */
+      function keyboardShield(){
+        on(doc, "keydown", function(e){
+          var k     = (e.key || "").toUpperCase();
+          var code  = e.keyCode || e.which || 0;
+          var ctrl  = e.ctrlKey || e.metaKey;
+          var shift = e.shiftKey;
+          var alt   = e.altKey;
+          var editable = ACP.keepFormsUsable && isEditable(e.target);
+
+          if (ACP.printScreenTrap && (k === "PRINTSCREEN" || code === 44)){
+            toast("Screenshot key is blocked.");
+            return block(e);
+          }
+          if (ACP.devtoolsKeys && (code === 123 || k === "F12")) return block(e);
+          if (ACP.devtoolsKeys && ctrl && shift &&
+              (k === "I" || k === "J" || k === "C" || k === "K" || k === "E")) return block(e);
+          if (ACP.devtoolsKeys && ctrl && alt &&
+              (k === "I" || k === "J" || k === "C" || k === "U")) return block(e);
+          if (ACP.viewSource && ctrl && !shift && k === "U") return block(e);
+          if (ACP.savePage   && ctrl && k === "S") return block(e);
+          if (ACP.printKeys  && ctrl && k === "P") return block(e);
+          if (ACP.findOnPage && ctrl && (k === "F" || k === "G")) return block(e);
+
+          if (editable) return true;
+
+          if (ACP.selectAll && ctrl && k === "A") return block(e);
+          if (ACP.copyCutPaste && ctrl && (k === "C" || k === "X" || k === "V")){
+            toast(ACP.toastText);
+            return block(e);
+          }
+          return true;
+        }, true);
+      }
+
+
+      /* ==========================================================
+         10. POINTER / CONTEXT / SELECTION / DRAG
+         ========================================================== */
+      function pointerShield(){
+
+        if (ACP.rightClick){
+          on(doc, "contextmenu", function(e){
+            if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+            toast(ACP.toastText);
+            return block(e);
+          }, true);
         }
-        return true;
-      }, true);
 
-      on(doc, "selectstart", function(e){
-        if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-        return block(e);
-      }, true);
+        if (ACP.selection){
+          on(doc, "mousedown", function(e){
+            if (e.detail > 1){
+              if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+              return block(e);
+            }
+            return true;
+          }, true);
 
-      if (typeof doc.onselectstart !== "undefined"){
-        doc.onselectstart = function(){ return false; };
-      }
-    }
+          on(doc, "selectstart", function(e){
+            if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+            return block(e);
+          }, true);
 
-    if (ACP.copyCutPaste){
-      on(doc, "copy", function(e){
-        if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-        clipboardPoison(e);
-        return block(e);
-      }, true);
-      on(doc, "cut", function(e){
-        if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-        return block(e);
-      }, true);
-      on(doc, "paste", function(e){
-        if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-        return block(e);
-      }, true);
-    }
-
-    if (ACP.dragDrop){
-      on(doc, "dragstart", function(e){
-        var t = e.target;
-        if (t && (t.tagName === "IMG" || t.tagName === "A")) return block(e);
-        return true;
-      }, true);
-      on(doc, "drop", function(e){
-        if (ACP.keepFormsUsable && isEditable(e.target)) return true;
-        return block(e);
-      }, true);
-    }
-
-    if (ACP.killDrop){
-      on(win, "dragover", function(e){ return block(e); }, true);
-      on(win, "drop",     function(e){ return block(e); }, true);
-    }
-
-    if (ACP.disableImgMenu){
-      on(doc, "mousedown", function(e){
-        if (e.target && e.target.tagName === "IMG" && e.button === 2){
-          toast("Images are protected.");
-          return block(e);
+          if (typeof doc.onselectstart !== "undefined"){
+            doc.onselectstart = function(){ return false; };
+          }
         }
-        return true;
-      }, true);
-    }
 
-    if (ACP.contextPoison){
-      on(doc, "contextmenu", function(e){
-        if (e.defaultPrevented) return block(e);
-        return true;
-      }, false);
-    }
-  }
+        if (ACP.copyCutPaste){
+          on(doc, "copy", function(e){
+            if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+            clipboardPoison(e);
+            return block(e);
+          }, true);
+          on(doc, "cut", function(e){
+            if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+            return block(e);
+          }, true);
+          on(doc, "paste", function(e){
+            if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+            return block(e);
+          }, true);
+        }
 
+        if (ACP.dragDrop){
+          on(doc, "dragstart", function(e){
+            var t = e.target;
+            if (t && (t.tagName === "IMG" || t.tagName === "A")) return block(e);
+            return true;
+          }, true);
+          on(doc, "drop", function(e){
+            if (ACP.keepFormsUsable && isEditable(e.target)) return true;
+            return block(e);
+          }, true);
+        }
 
-  /* ==========================================================
-     11. DEVTOOLS DETECTOR v2
-     ========================================================== */
-  function devtoolsDetect(){
-    if (!ACP.devtoolsDetect) return;
-    if (win.innerWidth < 768) return;
-    if ("ontouchstart" in win) return;
-    if (!doc.body) return;
+        if (ACP.killDrop){
+          on(win, "dragover", function(e){ return block(e); }, true);
+          on(win, "drop",     function(e){ return block(e); }, true);
+        }
 
-    var locked = false;
+        if (ACP.disableImgMenu){
+          on(doc, "mousedown", function(e){
+            if (e.target && e.target.tagName === "IMG" && e.button === 2){
+              toast("Images are protected.");
+              return block(e);
+            }
+            return true;
+          }, true);
+        }
 
-    function check(){
-      var wDiff = win.outerWidth  - win.innerWidth;
-      var hDiff = win.outerHeight - win.innerHeight;
-      var open  = (wDiff > 160 || hDiff > 160);
-
-      if (open !== locked){
-        locked = open;
-        if (open) doc.body.classList.add("acp-locked");
-        else      doc.body.classList.remove("acp-locked");
+        if (ACP.contextPoison){
+          on(doc, "contextmenu", function(e){
+            if (e.defaultPrevented) return block(e);
+            return true;
+          }, false);
+        }
       }
-    }
-
-    setInterval(check, 900);
-    on(win, "resize", check);
-  }
 
 
-  /* ==========================================================
-     BOOT
-     ========================================================== */
-  function bootExtras(){
-    var yr = doc.getElementById("yr");
-    if (yr) yr.textContent = new Date().getFullYear();
-  }
+      /* ==========================================================
+         11. DEVTOOLS DETECTOR v2
+         ========================================================== */
+      function devtoolsDetect(){
+        if (!ACP.devtoolsDetect) return;
+        if (win.innerWidth < 768) return;
+        if ("ontouchstart" in win) return;
+        if (!doc.body) return;
 
-  function init(){
-    injectWidgetStyles();
-    loadFontAwesome();
+        var locked = false;
 
-    antiFrame();
-    buildUI();
-    buildWatermark();
-    hardenImages(doc);
-    mutationGuard();
-    consoleTrap();
-    debuggerTrap();
-    printScreenTrap();
-    focusBlur();
-    keyboardShield();
-    pointerShield();
-    devtoolsDetect();
-    bootExtras();
+        function check(){
+          var wDiff = win.outerWidth  - win.innerWidth;
+          var hDiff = win.outerHeight - win.innerHeight;
+          var open  = (wDiff > 160 || hDiff > 160);
 
-    win.ACP = ACP;
-  }
+          if (open !== locked){
+            locked = open;
+            if (open) doc.body.classList.add("acp-locked");
+            else      doc.body.classList.remove("acp-locked");
+          }
+        }
 
-  if (doc.readyState === "loading"){
-    on(doc, "DOMContentLoaded", init);
-  } else {
-    init();
-  }
+        setInterval(check, 900);
+        on(win, "resize", check);
+      }
 
-})();
-</script>
 
+      /* ==========================================================
+         BOOT
+         ========================================================== */
+      function bootExtras(){
+        var yr = doc.getElementById("yr");
+        if (yr) yr.textContent = new Date().getFullYear();
+      }
+
+      function init(){
+        injectWidgetStyles();
+        loadFontAwesome();
+
+        antiFrame();
+        buildUI();
+        buildWatermark();
+        hardenImages(doc);
+        mutationGuard();
+        consoleTrap();
+        debuggerTrap();
+        printScreenTrap();
+        focusBlur();
+        keyboardShield();
+        pointerShield();
+        devtoolsDetect();
+        bootExtras();
+
+        win.ACP = ACP;
+      }
+
+      if (doc.readyState === "loading"){
+        on(doc, "DOMContentLoaded", init);
+      } else {
+        init();
+      }
+
+    })();
+    </script>
+
+    <!-- ============================================================
+         LEGACY SYSTEM SHIELDS (original behaviour preserved)
+         ============================================================ -->
+    <script>
+        // Disable right-click
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        function ctrlShiftKey(e, keyCode) {
+            return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
+        }
+
+        document.onkeydown = (e) => {
+            // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + U
+            if (
+                e.keyCode === 123 ||
+                ctrlShiftKey(e, 'I') ||
+                ctrlShiftKey(e, 'J') ||
+                ctrlShiftKey(e, 'C') ||
+                (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0))
+            )
+                return false;
+        };
+    </script>
+
+    <script type='text/javascript'>
+        if (typeof document.onselectstart != "undefined") {
+            document.onselectstart = new Function("return false");
+        } else {
+            document.onmousedown = new Function("return false");
+            document.onmouseup = new Function("return true");
+        }
+    </script>
 
     <script>
-// Disable right-click
-document.addEventListener('contextmenu', (e) => e.preventDefault());
+        document.onkeydown = function (e) {
+            if (event.keyCode == 123) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'C'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'X'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'Y'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'Z'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'V'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.keyCode == 67 && e.shiftKey && (e.ctrlKey || e.metaKey)) {
+                return false;
+            }
+            if (e.keyCode == 'J'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)) {
+                return false;
+            }
+            if (e.keyCode == 'I'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)) {
+                return false;
+            }
+            if ((e.keyCode == 'V'.charCodeAt(0) && e.metaKey) || (e.metaKey && e.altKey)) {
+                return false;
+            }
+            if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'H'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'A'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)) {
+                return false;
+            }
+            if (e.ctrlKey && e.keyCode == 'E'.charCodeAt(0)) {
+                return false;
+            }
+        };
 
-function ctrlShiftKey(e, keyCode) {
-  return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
-}
-
-document.onkeydown = (e) => {
-  // Disable F12, Ctrl + Shift + I, Ctrl + Shift + J, Ctrl + U
-  if (
-    event.keyCode === 123 ||
-    ctrlShiftKey(e, 'I') ||
-    ctrlShiftKey(e, 'J') ||
-    ctrlShiftKey(e, 'C') ||
-    (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0))
-  )
-    return false;
-};
-
-<script src='demo-to-prevent-copy-paste-on-blogger_files/googleapis.js'>
-</script>
-<script type='text/javascript'>
- if (typeof document.onselectstart!="undefined" ) {
-  document.onselectstart=new Function ("return false" );
- }
- else {
-  document.onmousedown=new Function ("return false" );
-  document.onmouseup=new Function ("return true" );
- }
-</script>
-
-<script>
-   document.onkeydown = function(e) {
-if(event.keyCode == 123) {
-    return false;
-}
-if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'C'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'X'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'Y'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'Z'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'V'.charCodeAt(0)){
-    return false;
-}
-if (e.keyCode == 67 && e.shiftKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if (e.keyCode == 'J'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if (e.keyCode == 'I'.charCodeAt(0) && e.altKey && (e.ctrlKey || e.metaKey)){
-    return false;
-}
-if ((e.keyCode == 'V'.charCodeAt(0) && e.metaKey) || (e.metaKey && e.altKey)){
-    return false;
-}
-if (e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'S'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'H'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'A'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'F'.charCodeAt(0)){
-    return false;
-}
-if(e.ctrlKey && e.keyCode == 'E'.charCodeAt(0)){
-    return false;
-}
-}
-if (document.addEventListener) {
-    document.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    }, false);
-}else{
-    document.attachEvent('oncontextmenu', function() {
-    window.event.returnValue = false;
-    });
-}
-</script>
+        if (document.addEventListener) {
+            document.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+            }, false);
+        } else {
+            document.attachEvent('oncontextmenu', function () {
+                window.event.returnValue = false;
+            });
+        }
+    </script>
 </body>
 </html>
