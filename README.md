@@ -1,4 +1,4 @@
-# 📻 Global FM Radio
+## Global FM Radio
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![GitHub last commit](https://img.shields.io/github/last-commit/hexsleuth/FM-Radio)
