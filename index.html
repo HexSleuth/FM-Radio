@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📻 Indian FM Radio</title>
+    <title>Global FM Radio — Unlimited World Stations</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.13"></script>
@@ -122,6 +122,24 @@
         }
         .search-wrapper input::placeholder {
             color: #556;
+        }
+        /* --- Region selector (uses existing search-wrapper look) --- */
+        .search-wrapper select {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #c9d1d9;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            max-width: 190px;
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 4px;
+        }
+        .search-wrapper select option {
+            background: #0d1117;
+            color: #c9d1d9;
         }
         .fetch-btn {
             display: flex;
@@ -1154,6 +1172,9 @@
             .search-wrapper input {
                 width: 100%;
             }
+            .search-wrapper select {
+                max-width: 110px;
+            }
             .main-content {
                 padding: 20px 16px;
                 gap: 30px;
@@ -1218,9 +1239,15 @@
         <header class="blog-header">
             <div class="header-left">
                 <i class="fas fa-music logo-icon"></i>
-                <span class="logo-text"><span>Indian FM Radio</span></span>
+                <span class="logo-text"><span>Global FM Radio</span></span>
             </div>
             <div class="header-right">
+                <div class="search-wrapper">
+                    <i class="fas fa-globe"></i>
+                    <select id="region-select" title="Choose region">
+                        <option value="">All Countries</option>
+                    </select>
+                </div>
                 <div class="search-wrapper">
                     <i class="fas fa-search"></i>
                     <input type="text" id="search-box" placeholder="Search stations...">
@@ -1396,36 +1423,186 @@
 
         <!-- Footer -->
         <footer class="blog-footer">
-            <p>© 2026 📻 <i class="fas fa-heart"></i> Indian FM Radio</p>
+            <p>© 2026 📻 <i class="fas fa-heart"></i> Global FM Radio — Unlimited</p>
         </footer>
     </div>
 
     <!-- ============================================================
          CORE RADIO ENGINE
+         (Global stations + unlimited mirrors + free CORS proxy list)
          ============================================================ -->
     <script>
         // ============================================================
-        //  STATIC FALLBACK STATIONS (with AIR/Akashvani)
+        //  STATIC FALLBACK STATIONS — GLOBAL COVERAGE
         // ============================================================
         const staticStations = [
-            { name: "AIR Vividh Bharati", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8" },
-            { name: "AIR News 24x7", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio002/playlist.m3u8" },
-            { name: "AIR FM Gold", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio003/playlist.m3u8" },
-            { name: "AIR FM Rainbow", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio004/playlist.m3u8" },
-            { name: "Radio Mirchi 98.3 FM", url: "https://radioindia.net/radio/mirchi98/icecast.audio" },
-            { name: "Radio City 91.1 FM", url: "https://prclive4.listenon.in/radiocity" },
-            { name: "Red FM 93.5", url: "https://redfm-live.akamaized.net/redfm-aac-48" },
-            { name: "Fever 104 FM", url: "https://feverfm-live.akamaized.net/feverfm-aac-48" },
-            { name: "Radio Indigo 91.9", url: "https://stream.radioindigo.com/radioindigo" },
-            { name: "Big FM 92.7", url: "https://sc-bb.1.fm:8017/" },
-            { name: "Radio One 94.3", url: "https://stream.radioone.in/radioone" },
-            { name: "Suryan FM 93.5", url: "https://stream.zeno.fm/8s7zv5k1krruv" }
+            // ---------- India ----------
+            { name: "AIR Vividh Bharati (India)", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8", tags: "india,bollywood,akashvani" },
+            { name: "AIR News 24x7 (India)", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio002/playlist.m3u8", tags: "india,news" },
+            { name: "AIR FM Gold (India)", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio003/playlist.m3u8", tags: "india,oldies" },
+            { name: "AIR FM Rainbow (India)", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio004/playlist.m3u8", tags: "india,music" },
+            { name: "Radio Mirchi 98.3 FM (India)", url: "https://radioindia.net/radio/mirchi98/icecast.audio", tags: "india,hindi" },
+            { name: "Radio City 91.1 FM (India)", url: "https://prclive4.listenon.in/radiocity", tags: "india,hindi" },
+            { name: "Red FM 93.5 (India)", url: "https://redfm-live.akamaized.net/redfm-aac-48", tags: "india,hindi" },
+            { name: "Fever 104 FM (India)", url: "https://feverfm-live.akamaized.net/feverfm-aac-48", tags: "india,hindi" },
+            { name: "Big FM 92.7 (India)", url: "https://sc-bb.1.fm:8017/", tags: "india,hindi" },
+            { name: "Radio Indigo 91.9 (India)", url: "https://stream.radioindigo.com/radioindigo", tags: "india,english" },
+
+            // ---------- United Kingdom ----------
+            { name: "BBC World Service (UK)", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service", tags: "uk,news" },
+            { name: "Classic FM (UK)", url: "https://media-ice.musicradio.com/ClassicFMMP3", tags: "uk,classical" },
+            { name: "Capital FM London (UK)", url: "https://media-ice.musicradio.com/CapitalMP3", tags: "uk,pop" },
+            { name: "Heart London (UK)", url: "https://media-ice.musicradio.com/HeartLondonMP3", tags: "uk,pop" },
+            { name: "Smooth Radio (UK)", url: "https://media-ice.musicradio.com/SmoothLondonMP3", tags: "uk,easy" },
+
+            // ---------- United States ----------
+            { name: "NPR Program Stream (USA)", url: "https://npr-ice.streamguys1.com/live.mp3", tags: "usa,news" },
+            { name: "KEXP 90.3 FM Seattle (USA)", url: "https://kexp-mp3-128.streamguys1.com/kexp128.mp3", tags: "usa,indie" },
+            { name: "Radio Paradise (USA)", url: "https://stream.radioparadise.com/mp3-192", tags: "usa,eclectic" },
+            { name: "SomaFM Groove Salad (USA)", url: "https://ice1.somafm.com/groovesalad-128-mp3", tags: "usa,chill" },
+            { name: "SomaFM Lush (USA)", url: "https://ice1.somafm.com/lush-128-mp3", tags: "usa,ambient" },
+            { name: "SomaFM Beat Blender (USA)", url: "https://ice1.somafm.com/beatblender-128-mp3", tags: "usa,electronic" },
+            { name: "WNYC 93.9 FM (USA)", url: "https://fm939.wnyc.org/wnycfm", tags: "usa,news" },
+
+            // ---------- Europe ----------
+            { name: "Radio Swiss Jazz (Switzerland)", url: "https://stream.srg-ssr.ch/m/rsj/mp3_128", tags: "switzerland,jazz" },
+            { name: "Radio Swiss Classic (Switzerland)", url: "https://stream.srg-ssr.ch/m/rsc_de/mp3_128", tags: "switzerland,classical" },
+            { name: "Radio Swiss Pop (Switzerland)", url: "https://stream.srg-ssr.ch/m/rsp/mp3_128", tags: "switzerland,pop" },
+            { name: "France Inter (France)", url: "https://icecast.radiofrance.fr/franceinter-midfi.mp3", tags: "france,news" },
+            { name: "FIP (France)", url: "https://icecast.radiofrance.fr/fip-midfi.mp3", tags: "france,eclectic" },
+            { name: "France Musique (France)", url: "https://icecast.radiofrance.fr/francemusique-midfi.mp3", tags: "france,classical" },
+            { name: "Radio France Info (France)", url: "https://icecast.radiofrance.fr/franceinfo-midfi.mp3", tags: "france,news" },
+            { name: "Bayern 3 (Germany)", url: "https://streams.br.de/bayern3_2.m3u", tags: "germany,pop" },
+            { name: "1LIVE (Germany)", url: "https://wdr-1live-live.icecast.wdr.de/wdr/1live/live/mp3/128/stream.mp3", tags: "germany,pop" },
+            { name: "Radio 538 (Netherlands)", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/RADIO538.mp3", tags: "netherlands,pop" },
+            { name: "RNE Radio 3 (Spain)", url: "https://rtvelivestream.akamaized.net/rtvesec/rne/mradio3.m3u8", tags: "spain,culture" },
+            { name: "RAI Radio 1 (Italy)", url: "https://icestreaming.rai.it/1.mp3", tags: "italy,news" },
+            { name: "RAI Radio 2 (Italy)", url: "https://icestreaming.rai.it/2.mp3", tags: "italy,music" },
+            { name: "RAI Radio 3 (Italy)", url: "https://icestreaming.rai.it/3.mp3", tags: "italy,classical" },
+
+            // ---------- Canada / Oceania / Asia / LatAm ----------
+            { name: "CBC Radio One Toronto (Canada)", url: "https://cbcradiolive.akacast.akamaistream.net/7/225/451661/v1/rc.akacast.akamaistream.net/CBC_R1_TOR", tags: "canada,news" },
+            { name: "ABC Radio National (Australia)", url: "https://live-radio01.mediahubaustralia.com/RNW/mp3/", tags: "australia,news" },
+            { name: "Triple J (Australia)", url: "https://live-radio01.mediahubaustralia.com/2TJW/mp3/", tags: "australia,indie" },
+            { name: "Radio New Zealand National", url: "https://radionz-ice.streamguys.com/national.mp3", tags: "newzealand,news" },
+            { name: "J-Pop Sakura (Japan)", url: "https://igor.torontocast.com:1025/;", tags: "japan,jpop" },
+            { name: "Radio Bandeirantes (Brazil)", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/BRBANDEIRANTES.mp3", tags: "brazil,news" },
+            { name: "Radio Mitre (Argentina)", url: "https://playerservices.streamtheworld.com/api/livestream-redirect/MITRE.mp3", tags: "argentina,news" },
+            { name: "Radio Dubai 92 (UAE)", url: "https://stream.radiodubai.com/dubai92", tags: "uae,pop" },
+            { name: "Radio SAW (South Africa)", url: "https://stream.saw-musikwelt.de/saw-live/mp3-128/", tags: "southafrica,pop" }
         ];
 
         // ============================================================
-        //  RADIO BROWSER SERVER LIST (dynamic)
+        //  FREE / OPEN RADIO-BROWSER API MIRRORS  (unblocked fallbacks)
         // ============================================================
-        const SERVER_LIST_URL = "https://all.api.radio-browser.info/json/servers";
+        const RB_MIRRORS = [
+            "https://de1.api.radio-browser.info",
+            "https://de2.api.radio-browser.info",
+            "https://fi1.api.radio-browser.info",
+            "https://at1.api.radio-browser.info",
+            "https://nl1.api.radio-browser.info",
+            "https://all.api.radio-browser.info"
+        ];
+        let mirrorQueue = RB_MIRRORS.slice();
+
+        // ============================================================
+        //  FREE CORS / UNBLOCK PROXY LIST
+        //  Used for BOTH API requests and audio-stream failover.
+        // ============================================================
+        const PROXY_LIST = [
+            { id: "allorigins",  name: "AllOrigins",   wrap: function (u) { return "https://api.allorigins.win/raw?url=" + encodeURIComponent(u); } },
+            { id: "codetabs",    name: "CodeTabs",     wrap: function (u) { return "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u); } },
+            { id: "corsproxy",   name: "CorsProxy.io", wrap: function (u) { return "https://corsproxy.io/?url=" + encodeURIComponent(u); } },
+            { id: "corseu",      name: "CorsEU",       wrap: function (u) { return "https://cors.eu.org/" + u; } },
+            { id: "corslol",     name: "Cors.lol",     wrap: function (u) { return "https://api.cors.lol/?url=" + encodeURIComponent(u); } },
+            { id: "thingproxy",  name: "ThingProxy",   wrap: function (u) { return "https://thingproxy.freeboard.io/fetch/" + u; } },
+            { id: "whatever",    name: "WhateverOrigin", wrap: function (u) { return "https://api.allorigins.win/raw?url=" + encodeURIComponent(u); } }
+        ];
+
+        const PROXY_HOSTS = [
+            "allorigins.win",
+            "codetabs.com",
+            "corsproxy.io",
+            "cors.eu.org",
+            "cors.lol",
+            "thingproxy.freeboard.io"
+        ];
+
+        function isProxiedUrl(u) {
+            for (let i = 0; i < PROXY_HOSTS.length; i++) {
+                if (u.indexOf(PROXY_HOSTS[i]) !== -1) return true;
+            }
+            return false;
+        }
+
+        // ============================================================
+        //  FETCH HELPERS (timeout + proxy fallback)
+        // ============================================================
+        function fetchWithTimeout(url, ms) {
+            return new Promise(function (resolve, reject) {
+                let ctrl = null;
+                try { if (typeof AbortController !== "undefined") ctrl = new AbortController(); } catch (e) { ctrl = null; }
+
+                const timer = setTimeout(function () {
+                    if (ctrl) { try { ctrl.abort(); } catch (e) {} }
+                    reject(new Error("timeout"));
+                }, ms || 9000);
+
+                const opts = ctrl ? { signal: ctrl.signal, cache: "no-store" } : { cache: "no-store" };
+
+                fetch(url, opts).then(function (r) {
+                    clearTimeout(timer);
+                    resolve(r);
+                }).catch(function (e) {
+                    clearTimeout(timer);
+                    reject(e);
+                });
+            });
+        }
+
+        // Try every mirror directly, then every mirror through every free proxy.
+        async function apiGet(path) {
+            let i, j, r;
+
+            // 1) Direct mirror attempts
+            for (i = 0; i < mirrorQueue.length; i++) {
+                try {
+                    r = await fetchWithTimeout(mirrorQueue[i] + path, 8000);
+                    if (r.ok) return await r.json();
+                } catch (e) { /* next mirror */ }
+            }
+
+            // 2) Proxied attempts (unblocked route)
+            for (j = 0; j < PROXY_LIST.length; j++) {
+                const p = PROXY_LIST[j];
+                for (i = 0; i < Math.min(3, mirrorQueue.length); i++) {
+                    try {
+                        r = await fetchWithTimeout(p.wrap(mirrorQueue[i] + path), 12000);
+                        if (r.ok) return await r.json();
+                    } catch (e) { /* next proxy */ }
+                }
+            }
+
+            throw new Error("All mirrors and proxies failed");
+        }
+
+        async function refreshMirrorList() {
+            try {
+                const resp = await fetchWithTimeout("https://all.api.radio-browser.info/json/servers", 7000);
+                const data = await resp.json();
+                if (Array.isArray(data) && data.length > 0) {
+                    const list = data
+                        .filter(function (s) { return s && s.name; })
+                        .map(function (s) { return "https://" + s.name; });
+                    if (list.length) {
+                        const extra = RB_MIRRORS.filter(function (m) { return list.indexOf(m) === -1; });
+                        mirrorQueue = list.concat(extra);
+                    }
+                }
+            } catch (e) {
+                /* keep default mirrors */
+            }
+        }
 
         // ============================================================
         //  DOM ELEMENTS
@@ -1441,13 +1618,14 @@
         const searchBox = document.getElementById("search-box");
         const stationCount = document.getElementById("station-count");
         const featuredGrid = document.getElementById("featured-grid");
+        const regionSelect = document.getElementById("region-select");
 
         // ============================================================
         //  STATE
         // ============================================================
         let audio = new Audio();
 
-        // ★★★ FIX: Enable CORS so Web Audio API (equalizer) can process
+        // ★★★ Enable CORS so Web Audio API (equalizer) can process
         //         the stream without being silenced by the browser. ★★★
         audio.crossOrigin = "anonymous";
 
@@ -1461,6 +1639,14 @@
         // fallback (crossOrigin cleared). When true, the equalizer will be
         // unavailable for this stream.
         let corsFallbackActive = false;
+
+        // Source failover state
+        let sourceCandidates = [];
+        let sourceCursor = -1;
+        let currentPlayName = "";
+        let currentPlayUrl = "";
+        let attemptId = 0;
+        let activeAttempt = 0;
 
         audio.volume = parseFloat(volumeSlider.value);
 
@@ -1491,15 +1677,15 @@
 
         function destroyHls() {
             if (hls) {
-                hls.destroy();
+                try { hls.destroy(); } catch (e) {}
                 hls = null;
             }
         }
 
         function stopPlayback() {
-            audio.pause();
+            try { audio.pause(); } catch (e) {}
             audio.removeAttribute("src");
-            audio.load();
+            try { audio.load(); } catch (e) {}
             destroyHls();
             isPlaying = false;
             updatePlayButton();
@@ -1507,53 +1693,179 @@
         }
 
         // ============================================================
-        //  PLAYBACK WITH HLS SUPPORT
+        //  SOURCE CANDIDATE BUILDER — direct + free unblock proxies
+        // ============================================================
+        function buildSourceCandidates(rawUrl) {
+            const list = [];
+
+            // 1) Direct with CORS (equalizer compatible)
+            list.push({ url: rawUrl, cors: "anonymous", label: "Direct (CORS)", wrap: null, proxy: null });
+
+            // 2) Direct without CORS (universally playable, EQ disabled)
+            list.push({ url: rawUrl, cors: null, label: "Direct", wrap: null, proxy: null });
+
+            // 3) Free proxy routes (unblocked / geo-free)
+            for (let i = 0; i < PROXY_LIST.length; i++) {
+                const p = PROXY_LIST[i];
+                list.push({
+                    url: p.wrap(rawUrl),
+                    cors: "anonymous",
+                    label: "via " + p.name,
+                    wrap: p.wrap,
+                    proxy: p.id
+                });
+            }
+
+            return list;
+        }
+
+        // ============================================================
+        //  HLS PROXY LOADER (rewrites every HLS request through a proxy)
+        // ============================================================
+        function makeProxyLoader(wrap) {
+            try {
+                if (!window.Hls || !Hls.DefaultConfig || !Hls.DefaultConfig.loader) return null;
+                const Base = Hls.DefaultConfig.loader;
+
+                function ProxyLoader(config) {
+                    Base.call(this, config);
+                }
+                ProxyLoader.prototype = Object.create(Base.prototype);
+                ProxyLoader.prototype.constructor = ProxyLoader;
+
+                ProxyLoader.prototype.load = function (context, config, callbacks) {
+                    try {
+                        if (context && typeof context.url === "string" && !isProxiedUrl(context.url)) {
+                            context.url = wrap(context.url);
+                        }
+                    } catch (e) { /* noop */ }
+                    return Base.prototype.load.call(this, context, config, callbacks);
+                };
+
+                return ProxyLoader;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // ============================================================
+        //  PLAYBACK — with HLS support & multi-source failover
         // ============================================================
         function playStation(url, name, index) {
             if (!url) { stopPlayback(); return; }
 
-            destroyHls();
-            // Reset CORS fallback for a new stream attempt
-            corsFallbackActive = false;
+            currentPlayUrl = url;
+            currentPlayName = name || "Unknown Station";
 
             if (index !== undefined) currentStationIndex = index;
             else currentStationIndex = filteredStations.findIndex(st => st.url === url);
 
-            nowPlaying.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading: ' + name;
-            const isHls = /\.m3u8(\?|$)/i.test(url) || url.includes("m3u8");
+            sourceCandidates = buildSourceCandidates(url);
+            sourceCursor = -1;
+            attemptId = 0;
+            activeAttempt = 0;
 
-            if (isHls) {
-                if (audio.canPlayType("application/vnd.apple.mpegurl")) {
-                    audio.src = url;
-                    audio.play().then(() => {
-                        isPlaying = true;
-                        updatePlayButton();
-                        nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + name;
-                    }).catch(err => handlePlaybackError(name));
-                } else if (window.Hls && Hls.isSupported()) {
-                    hls = new Hls();
-                    hls.loadSource(url);
-                    hls.attachMedia(audio);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        audio.play().then(() => {
-                            isPlaying = true;
-                            updatePlayButton();
-                            nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + name;
-                        }).catch(err => handlePlaybackError(name));
-                    });
-                    hls.on(Hls.Events.ERROR, (event, data) => {
-                        if (data.fatal) handlePlaybackError(name);
-                    });
-                } else {
-                    handlePlaybackError(name);
-                }
+            nowPlaying.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Connecting: ' + currentPlayName;
+
+            advanceSource();
+        }
+
+        function advanceSource() {
+            attemptId++;
+            activeAttempt = attemptId;
+
+            sourceCursor++;
+
+            if (sourceCursor >= sourceCandidates.length) {
+                handlePlaybackError(currentPlayName);
+                return;
+            }
+
+            loadSourceCandidate(sourceCandidates[sourceCursor]);
+        }
+
+        function loadSourceCandidate(cand) {
+            destroyHls();
+
+            try { audio.pause(); } catch (e) {}
+            audio.removeAttribute("src");
+            try { audio.load(); } catch (e) {}
+
+            // crossOrigin MUST be set before the src assignment
+            if (cand.cors === null || cand.cors === undefined) {
+                try { audio.removeAttribute("crossorigin"); } catch (e) {}
+                audio.crossOrigin = null;
+                corsFallbackActive = true;
             } else {
-                audio.src = url;
-                audio.play().then(() => {
+                audio.crossOrigin = "anonymous";
+                corsFallbackActive = false;
+            }
+
+            nowPlaying.innerHTML =
+                '<i class="fas fa-spinner fa-spin"></i> ' + cand.label + ': ' + currentPlayName;
+
+            const isHls = /m3u8/i.test(cand.url);
+            const nativeHls = !!audio.canPlayType("application/vnd.apple.mpegurl");
+
+            if (isHls && !nativeHls && window.Hls && Hls.isSupported()) {
+                try {
+                    hls = new Hls({
+                        enableWorker: true,
+                        lowLatencyMode: false,
+                        manifestLoadingTimeOut: 12000,
+                        levelLoadingTimeOut: 12000,
+                        fragLoadingTimeOut: 20000
+                    });
+
+                    if (cand.wrap) {
+                        const L = makeProxyLoader(cand.wrap);
+                        if (L) hls.config.loader = L;
+                    }
+
+                    hls.loadSource(cand.url);
+                    hls.attachMedia(audio);
+
+                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                        startAudio();
+                    });
+
+                    hls.on(Hls.Events.ERROR, function (evt, data) {
+                        if (data && data.fatal) {
+                            if (activeAttempt !== attemptId) return;
+                            activeAttempt = -1;
+                            advanceSource();
+                        }
+                    });
+                } catch (e) {
+                    if (activeAttempt === attemptId) {
+                        activeAttempt = -1;
+                        advanceSource();
+                    }
+                }
+                return;
+            }
+
+            audio.src = cand.url;
+            startAudio();
+        }
+
+        function startAudio() {
+            let p = null;
+            try { p = audio.play(); } catch (e) { p = null; }
+
+            if (p && typeof p.then === "function") {
+                p.then(function () {
                     isPlaying = true;
                     updatePlayButton();
-                    nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + name;
-                }).catch(err => handlePlaybackError(name));
+                    nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + currentPlayName;
+                }).catch(function (err) {
+                    if (err && err.name === "NotAllowedError") {
+                        isPlaying = false;
+                        updatePlayButton();
+                        nowPlaying.innerHTML = '<i class="fas fa-pause-circle"></i> Tap play to start: ' + currentPlayName;
+                    }
+                    /* Otherwise the audio "error" handler will advance sources */
+                });
             }
         }
 
@@ -1572,20 +1884,30 @@
             playStation(st.url, st.name, currentStationIndex);
         }
 
+        function playPreviousStation() {
+            const list = (filteredStations && filteredStations.length) ? filteredStations : allStations;
+            if (!list.length) return;
+            if (currentStationIndex === -1) currentStationIndex = 0;
+            else currentStationIndex = (currentStationIndex - 1 + list.length) % list.length;
+            const st = list[currentStationIndex];
+            select.value = st.url;
+            playStation(st.url, st.name, currentStationIndex);
+        }
+
         // ============================================================
         //  FEATURED STATION CARDS
         // ============================================================
         const featuredStationsList = [
             { name: "AIR Vividh Bharati", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio001/playlist.m3u8",
             icon: "fa-radio", tag: "Akashvani" },
-            { name: "Radio Mirchi 98.3", url: "https://radioindia.net/radio/mirchi98/icecast.audio", icon: "fa-music",
-                tag: "Hindi" },
-            { name: "Radio City 91.1", url: "https://prclive4.listenon.in/radiocity", icon: "fa-city", tag: "Hindi" },
-            { name: "AIR FM Rainbow", url: "https://air.pc.cdn.bitgravity.com/air/live/pbaudio004/playlist.m3u8",
-                icon: "fa-cloud", tag: "Akashvani" },
-            { name: "Red FM 93.5", url: "https://redfm-live.akamaized.net/redfm-aac-48", icon: "fa-fire", tag: "Hindi" },
-            { name: "Fever 104 FM", url: "https://feverfm-live.akamaized.net/feverfm-aac-48", icon: "fa-temperature-high",
-                tag: "Hindi" }
+            { name: "BBC World Service", url: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service", icon: "fa-globe",
+                tag: "UK News" },
+            { name: "Radio Paradise", url: "https://stream.radioparadise.com/mp3-192", icon: "fa-music", tag: "USA" },
+            { name: "Radio Swiss Jazz", url: "https://stream.srg-ssr.ch/m/rsj/mp3_128", icon: "fa-saxophone",
+                tag: "Switzerland" },
+            { name: "FIP Paris", url: "https://icecast.radiofrance.fr/fip-midfi.mp3", icon: "fa-tower-broadcast", tag: "France" },
+            { name: "SomaFM Groove Salad", url: "https://ice1.somafm.com/groovesalad-128-mp3", icon: "fa-headphones",
+                tag: "Chill" }
         ];
 
         function buildFeaturedCards() {
@@ -1619,7 +1941,15 @@
                 updatePlayButton();
                 nowPlaying.innerHTML = '<i class="fas fa-pause-circle"></i> Paused: ' + selectedName;
             } else {
-                playStation(selectedUrl, selectedName);
+                if (!audio.src || audio.src !== selectedUrl) {
+                    playStation(selectedUrl, selectedName);
+                } else {
+                    audio.play().then(function () {
+                        isPlaying = true;
+                        updatePlayButton();
+                        nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + selectedName;
+                    }).catch(function () { playStation(selectedUrl, selectedName); });
+                }
             }
         });
 
@@ -1652,94 +1982,98 @@
         });
 
         // ============================================================
-        //  FETCH STATIONS – DYNAMIC SERVER LIST
+        //  REGION / COUNTRY DROPDOWN (Global coverage)
         // ============================================================
-        async function fetchServers() {
+        async function loadCountries() {
+            if (!regionSelect) return;
             try {
-                const resp = await fetch(SERVER_LIST_URL);
-                const data = await resp.json();
-                if (Array.isArray(data) && data.length > 0) {
-                    const server = data[Math.floor(Math.random() * data.length)];
-                    return `https://${server.name}/json/stations/search`;
-                }
+                const data = await apiGet("/json/countries");
+                if (!Array.isArray(data) || !data.length) return;
+
+                const sorted = data
+                    .filter(c => c && c.iso_3166_1 && c.name)
+                    .sort((a, b) => (b.stationcount || 0) - (a.stationcount || 0));
+
+                const frag = document.createDocumentFragment();
+                sorted.forEach(function (c) {
+                    const o = document.createElement("option");
+                    o.value = c.iso_3166_1;
+                    o.textContent = c.name + " (" + (c.stationcount || 0) + ")";
+                    frag.appendChild(o);
+                });
+
+                regionSelect.innerHTML = '<option value="">All Countries</option>';
+                regionSelect.appendChild(frag);
             } catch (e) {
-                console.warn("Server list fetch failed, using default.", e);
+                /* country list unavailable — global fetch still works */
             }
-            return "https://de1.api.radio-browser.info/json/stations/search";
         }
 
+        if (regionSelect) {
+            regionSelect.addEventListener("change", function () {
+                fetchStationsFromAPI();
+            });
+        }
+
+        // ============================================================
+        //  FETCH STATIONS — GLOBAL, UNLIMITED, UNBLOCKED
+        // ============================================================
         async function fetchStationsFromAPI() {
             fetchBtn.disabled = true;
-            fetchMsg.textContent = "Fetching stations from Radio Browser...";
+            fetchMsg.textContent = "Fetching global stations…";
 
-            const API_BASE = await fetchServers();
+            const cc = regionSelect ? regionSelect.value : "";
+
+            let path = "/json/stations/search?limit=800&order=clickcount&reverse=true&hidebroken=true";
+            if (cc) path += "&countrycode=" + encodeURIComponent(cc);
 
             try {
-                const url = `${API_BASE}?countrycode=IN&order=clickcount&reverse=true&limit=300&hidebroken=true`;
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("HTTP " + response.status);
-                const data = await response.json();
+                const data = await apiGet(path);
                 if (!Array.isArray(data) || data.length === 0) throw new Error("No stations returned");
 
                 const stations = data
-                    .filter(st => st.url_resolved || st.url)
+                    .filter(st => st && (st.url_resolved || st.url))
                     .map(st => ({
-                        name: st.name || "Unknown Station",
+                        name: (st.name || "Unknown Station").trim(),
                         url: st.url_resolved || st.url,
-                        tags: st.tags || ""
+                        tags: st.tags || (st.country || "")
                     }))
-                    .slice(0, 300);
+                    .filter((st, i, arr) => arr.findIndex(x => x.url === st.url) === i)
+                    .slice(0, 800);
 
                 if (stations.length === 0) throw new Error("No compatible stations found");
 
                 allStations = stations;
                 filteredStations = stations;
                 populateDropdown(stations);
-                fetchMsg.textContent = "✔ Loaded " + stations.length + " stations from Radio Browser.";
+                fetchMsg.textContent = "✔ Loaded " + stations.length + " global stations" +
+                    (cc ? " (" + cc + ")" : "") + " — unlimited & free.";
+
+                if (typeof renderList === "function") {
+                    try { renderList(); } catch (e) {}
+                }
             } catch (err) {
-                console.warn("API fetch failed, using static fallback:", err);
+                console.warn("API fetch failed, using static global fallback:", err);
                 allStations = staticStations;
                 filteredStations = staticStations;
                 populateDropdown(staticStations);
-                fetchMsg.textContent = "⚠️ Could not fetch from API. Using built-in station list.";
+                fetchMsg.textContent = "⚠️ API unreachable. Using built-in global station list.";
             } finally {
                 fetchBtn.disabled = false;
             }
         }
 
         // ============================================================
-        //  AUDIO ERROR — CORS FALLBACK + USER FEEDBACK
+        //  AUDIO ERROR — SOURCE FAILOVER (proxy list)
         // ============================================================
-        audio.addEventListener("error", () => {
-            const currentName = select.options[select.selectedIndex]?.text || "station";
+        audio.addEventListener("error", function () {
+            if (!audio.src) return;
+            if (activeAttempt !== attemptId) return;
 
-            // ★ FIX: If CORS-enabled load failed, retry without crossOrigin.
-            //         This keeps the stream playing but disables the EQ
-            //         (Web Audio will silence a tainted stream).
-            if (audio.crossOrigin === "anonymous" && !corsFallbackActive) {
-                console.warn("[CORS] Stream rejected crossOrigin — retrying without CORS (EQ will be unavailable)");
-                corsFallbackActive = true;
-                audio.crossOrigin = null;
-
-                const failedSrc = audio.src || select.value;
-                if (failedSrc) {
-                    audio.src = "";
-                    audio.src = failedSrc;
-                    const p = audio.play();
-                    if (p && typeof p.then === "function") {
-                        p.then(() => {
-                            isPlaying = true;
-                            updatePlayButton();
-                            nowPlaying.innerHTML = '<i class="fas fa-play-circle"></i> Now Playing: ' + currentName;
-                        }).catch(() => handlePlaybackError(currentName));
-                    }
-                }
-                return;
-            }
-
-            if (isPlaying) {
-                handlePlaybackError(currentName);
-            }
+            activeAttempt = -1;
+            setTimeout(function () {
+                advanceSource();
+            }, 50);
         });
 
         // ============================================================
@@ -1751,9 +2085,18 @@
         currentStationIndex = -1;
 
         buildFeaturedCards();
-        fetchStationsFromAPI();
 
-        fetchBtn.addEventListener("click", fetchStationsFromAPI);
+        refreshMirrorList().then(function () {
+            return fetchStationsFromAPI();
+        }).then(function () {
+            loadCountries();
+        }).catch(function () {
+            loadCountries();
+        });
+
+        fetchBtn.addEventListener("click", function () {
+            refreshMirrorList().then(fetchStationsFromAPI).catch(fetchStationsFromAPI);
+        });
     </script>
 
     <!-- ============================================================
@@ -2280,7 +2623,7 @@
         var lastPositionPush = 0;
 
         function buildArtworkSet(name) {
-            var safe = String(name || "Indian FM Radio")
+            var safe = String(name || "Global FM Radio")
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
@@ -2325,7 +2668,7 @@
             try {
                 navigator.mediaSession.metadata = new MediaMetadata({
                     title  : st.name || "Live Radio",
-                    artist : "Indian FM Radio",
+                    artist : "Global FM Radio",
                     album  : st.formatDesc || "Live Stream",
                     artwork: buildArtworkSet(st.name)
                 });
@@ -2364,9 +2707,9 @@
         }
 
         function currentStationName() {
-            if (!select) return "Indian FM Radio";
+            if (!select) return "Global FM Radio";
             var opt = select.options[select.selectedIndex];
-            return (opt && opt.text) ? opt.text : "Indian FM Radio";
+            return (opt && opt.text) ? opt.text : "Global FM Radio";
         }
 
         function mediaPlay() {
