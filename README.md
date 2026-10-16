@@ -1,58 +1,58 @@
 # 📻 Global FM Radio
 
-Welcome to **Global FM Radio**, a fully-featured, web-based internet radio player. Listen to live radio stations from all around the world directly in your browser. This project features a sleek, modern UI equipped with an 8-band audio visualizer, a built-in graphic equalizer, and sleep timer functionality.
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+![GitHub last commit](https://img.shields.io/github/last-commit/hexsleuth/FM-Radio)
+![GitHub issues](https://img.shields.io/github/issues/hexsleuth/FM-Radio)
+![GitHub stars](https://img.shields.io/github/stars/hexsleuth/FM-Radio?style=social)
 
-**Live Demo:** [https://hexsleuth.github.io/FM-Radio/](https://hexsleuth.github.io/FM-Radio/)
-
----
+A sleek, web-based FM radio player that allows you to discover and listen to radio stations from all around the world directly in your browser. 
 
 ## ✨ Features
 
-- **🌍 Global Station Selection**: Browse and search through a vast directory of internet radio stations by country or region.
-- **🎛️ 8-Band Graphic Equalizer**: Customize your listening experience with a built-in 8-band EQ to adjust frequencies to your liking.
-- **📊 Live Audio Visualizer**: Watch your music come to life with a real-time, responsive 8-band canvas visualizer.
-- **⏰ Sleep Timer**: Set a timer (e.g., 15m, 30m, 60m) to automatically stop playback when you're ready to fall asleep.
-- **🎧 Media Keys Support**: Control playback seamlessly using your keyboard's hardware media keys.
-- **⭐ Featured Stations**: Quickly access a curated list of top/featured stations.
-- **🔊 Volume & Playback Controls**: Intuitive UI for play, pause, and precise volume adjustment.
+* **Global Station Selection:** Filter and explore radio stations by country or region.
+* **Live Audio Visualizer:** Features an immersive 8-band live audio visualizer that reacts to the current stream.
+* **8-Band Graphic Equalizer (EQ):** Fine-tune your listening experience with customizable EQ settings.
+* **Sleep Timer:** Set a timer to automatically stop playback after a specified duration.
+* **Media Keys Support:** Control playback seamlessly using your keyboard's media keys.
+* **Featured Stations:** Quickly access a curated list of featured and popular stations.
+* **Station Search:** Easily search for your favorite stations by name.
+* **Responsive Design:** A clean, modern UI with interactive controls and real-time status updates.
 
-## 🚀 Quick Start
+## 🚀 Getting Started
 
-Since this is a client-side web application, no complex installation or build process is required to run it locally.
+Since this is a client-side web application, you can run it directly in your browser without any complex server setup.
 
+### Prerequisites
+* A modern web browser (Chrome, Firefox, Safari, Edge, etc.)
+* An active internet connection (to stream the radio feeds)
+
+### Installation & Usage
 1. **Clone the repository:**
    ```bash
    git clone https://github.com/hexsleuth/FM-Radio.git
    ```
-2. **Navigate to the directory:**
+2. **Navigate to the project directory:**
    ```bash
    cd FM-Radio
    ```
 3. **Run the application:**
-   Simply open the `index.html` file in your preferred modern web browser.
-   *(Alternatively, use a local development server like VS Code Live Server or Python's `http.server` for the best experience).*
+   Simply open the `index.html` file in your preferred web browser.
 
-## 🛠️ Technologies Used
+## 🛠️ Tech Stack
 
-- **HTML5 & CSS3**: For the layout, styling, and responsive user interface.
-- **Vanilla JavaScript (ES6+)**: Handles all application logic, state management, and API interactions.
-- **Web Audio API**: Powers the 8-Band Graphic EQ and extracts frequency data for the visualizer.
-- **HTML5 `<canvas>`**: Used to render the smooth, real-time live audio visualizer.
-- **Browser Media Session API**: Enables hardware media key integration.
+* **HTML5:** For the core structure and layout.
+* **CSS3:** For styling, responsive design, and visual elements.
+* **JavaScript (Vanilla):** For audio streaming logic, visualizer rendering (Canvas API), equalizer controls, and state management.
 
-## 🤝 Contributing
+## 🎮 How to Use
 
-Contributions, issues, and feature requests are welcome! 
+1. Launch the app and use the top navigation to select your desired **Country/Region**.
+2. Alternatively, use the **Search bar** to find a specific station.
+3. Select a station from the dropdown or the **All Stations** list.
+4. Use the main player controls to Play, Pause, or adjust the Volume.
+5. Toggle the **8-Band EQ** to customize the audio profile.
+6. Set a **Sleep Timer** if you want the radio to turn off automatically.
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+## 📄 License
 
-## 📝 License
-
-This project is open-source. Please see the [LICENSE](LICENSE) file for more information.
-
----
-*© 2026 📻 Global FM Radio — Unlimited*
+This project is open-source and available under the standard MIT License.
